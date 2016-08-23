@@ -11,8 +11,8 @@ _ver = sys.version_info
 is_py2 = (_ver[0]==2)
 is_py3 = (_ver[0]==3)
 
-#添加食物即可
-foodlist = [u"千里香", u"私家面", u'齐妈妈', u'kfc19元套餐', u'kfc19.5元套餐']
+#add your food in list
+foodlist = [u"1", u"2", u'3', u'4', u'5']
 
 
 def get_random_number(seed, len_foodlist):
