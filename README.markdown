@@ -14,6 +14,7 @@ you  will get food without thinking.
 you should install requests 
 it will send supervisor signal for restart task
 the supervisor config file in 
+
     /etc/supervisor/supervisor.conf
 
 set
