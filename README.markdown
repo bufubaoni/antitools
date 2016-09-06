@@ -13,6 +13,10 @@ you  will get food without thinking.
 ------------------------------------------------------
 you should install requests 
 it will send supervisor signal for restart task
+install requests
+
+    sudo pip install requests
+
 the supervisor config file in 
 
     /etc/supervisor/supervisor.conf
@@ -24,6 +28,15 @@ set
 	username=user      ; base auth
 	password=pass      ;
 opt you shuold copy then
+modify username  and password for pass auth
+script 
+
+    script.py taskname taskaction
+	
+task action opt
+    start
+	stop
+	restart
 3.struct_template
 -------------------------------------------------------
 if you have 2 list A and B
