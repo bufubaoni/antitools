@@ -59,4 +59,5 @@ ex.
     1-pos:v. def:交；递；给                                                                                              
     2-pos:Web def:汉德；人手；手形
 
-when you input your words your will get translate
+when you input your words your will get translate, also you can input sentence.
+in windows cmd charset will only display half,shuold minimize and then restore the windows.
