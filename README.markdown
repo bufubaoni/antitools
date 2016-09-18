@@ -48,3 +48,15 @@ ex.
     B------> [2, 3, 4, 5, 6, 7, 8, 2, 3]
     B2A----> [2, [3, 4, [5, 6]], [7, 8, 2], 3]
 
+4.consoledict
+-------------------------------------------------------
+translate en to zh in console 
+ex.
+
+    input your words:hand                                                                                                
+    hand---/hænd/                                                                                                        
+    0-pos:n. def:手；手工；帮助；指针                                                                                    
+    1-pos:v. def:交；递；给                                                                                              
+    2-pos:Web def:汉德；人手；手形
+
+when you input your words your will get translate
