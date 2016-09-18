@@ -61,3 +61,23 @@ ex.
 
 when you input your words your will get translate, also you can input sentence.
 in windows cmd charset will only display half,shuold minimize and then restore the windows.
+
+5.jfinal model generate
+-------------------------------------------------------
+translate sql table to java class for framwork jfinal
+you should put .sql in 
+
+    /tables
+
+and modify generate.py file 
+
+    api("your table name", "package")
+
+then you will get the 
+
+    tablenameContraller.java
+    tablenameModel.java
+    tablename.java
+
+copy these to your project! Ation,the package will not correct ,becouse my project diff from yours.
+
