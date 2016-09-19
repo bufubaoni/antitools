@@ -2,14 +2,14 @@
 
 antitools
 
-1.random_food 
+1. random_food 
 ------------------------------------------------------
 you should change foodlist , and run this script ,
 
     random_food/random_food.py
 you  will get food without thinking.
 
-2.auto_supervisor_controller
+2. auto_supervisor_controller
 ------------------------------------------------------
 you should install requests 
 it will send supervisor signal for restart task
@@ -37,7 +37,7 @@ task action opt
     start
 	stop
 	restart
-3.struct_template
+3. struct_template
 -------------------------------------------------------
 if you have 2 list A and B
 and there are the same number of elements
@@ -48,7 +48,7 @@ ex.
     B------> [2, 3, 4, 5, 6, 7, 8, 2, 3]
     B2A----> [2, [3, 4, [5, 6]], [7, 8, 2], 3]
 
-4.consoledict
+4. consoledict
 -------------------------------------------------------
 translate en to zh in console 
 ex.
@@ -62,7 +62,7 @@ ex.
 when you input your words your will get translate, also you can input sentence.
 in windows cmd charset will only display half,shuold minimize and then restore the windows.
 
-5.jfinal model generate
+5. jfinal model generate
 -------------------------------------------------------
 translate sql table to java class for framwork jfinal
 you should put .sql in 
@@ -80,4 +80,13 @@ then you will get the
     tablename.java
 
 copy these to your project! Ation,the package will not correct ,becouse my project diff from yours.
+
+6. server test
+---------------------------------------------------------
+just test the server is running
+
+just the server down time.
+
+3min heart bit about.
+
 
