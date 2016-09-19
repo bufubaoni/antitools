@@ -89,4 +89,7 @@ just the server down time.
 
 3min heart bit about.
 
+7. proxy list
+---------------------------------------------------------
+long time ago write some spider for proxy,it have a default url,you should edit it if need.
 
