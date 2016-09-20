@@ -37,6 +37,7 @@ task action opt
     start
 	stop
 	restart
+
 3. struct_template
 -------------------------------------------------------
 if you have 2 list A and B
@@ -62,7 +63,7 @@ ex.
 when you input your words your will get translate, also you can input sentence.
 in windows cmd charset will only display half,shuold minimize and then restore the windows.
 
-5. jfinal model generate
+5.jfinal model generate
 -------------------------------------------------------
 translate sql table to java class for framwork jfinal
 you should put .sql in 
@@ -93,3 +94,6 @@ just the server down time.
 ---------------------------------------------------------
 long time ago write some spider for proxy,it have a default url,you should edit it if need.
 
+8. Decorator learn
+---------------------------------------------------------
+edit a block code for decorator copy and newer learning.
