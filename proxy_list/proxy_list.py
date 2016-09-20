@@ -28,7 +28,7 @@ class Proxy_List(object):
             'Connection': head_connection[0],
             'Accept': head_accept[0],
             'Accept-Language': head_accept_language[1],
-            'User-Agent': head_user_agent[3]
+            'User-Agent': head_user_agent[2]
         }
 
     def get_content(self):
