@@ -8,7 +8,7 @@ import sys
 session = requests.Session()
 res = session.get(('http://192.168.1.109:9001/?'
                    'processname={task_name}&amp;'
-                   'action={task_actiong}'.format(task_name=sys.argv[1],
-                                                  tast_action=sys.argv[2])),
+                   'action={task_action}'.format(task_name=sys.argv[1],
+                                                  task_action=sys.argv[2])),
                   auth=HTTPBasicAuth('username', 'password'))
 

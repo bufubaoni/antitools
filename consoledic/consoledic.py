@@ -33,7 +33,3 @@ if __name__ == "__main__":
     while True:
         words = raw_input("input your words:")
         dictword(words)
-
-
-
-
