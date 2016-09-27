@@ -13,7 +13,7 @@ tree = list()
 def generator_menu(menu):
     for item in menu:
         if not item.parent:
-            node = Node(item.id, item.icon, "", list(), item.title, item.link)
+            node = Node(item.id, item.icon, None, list(), item.title, item.link)
             tree.append(node)
         else:
             node = Node(item.id, item.icon, item.parent, list(), item.title, item.link)
