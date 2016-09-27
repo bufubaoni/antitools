@@ -98,3 +98,7 @@ this state aways gone.
 8. Decorator learn
 ---------------------------------------------------------
 edit a block code for decorator copy and newer learning.
+
+9. menu creat
+---------------------------------------------------------
+For use this script creat menu for any deep translate a  menu tree, it's useful.
