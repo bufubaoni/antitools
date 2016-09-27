@@ -17,33 +17,23 @@ def generator_menu(menu):
             tree.append(node)
         else:
             node = Node(item.id, item.icon, item.parent, list(), item.title, item.link)
-            nodeadd(node, menu)
+            nodeadd(node, tree)
 
 
 def nodeadd(leaf, menu):
-    if leaf.parent in [node.id for node in tree]:
-        for node in tree:
-            if leaf.parent == node.id:
-                node.leaf.append(leaf)
-    else:
-        item = filter(lambda x: x.id == leaf.parent, menu)[0]
-        print(item)
-        tree.append(Node(item.id, item.icon, item.parent, list(), item.title, item.link))
-        tree[-1].leaf.append(leaf)
+    for node in menu:
+        if leaf.parent == node.id:
+            node.leaf.append(leaf)
+        else:
+            nodeadd(leaf, node.leaf)
 
 
 if __name__ == '__main__':
     menu = list()
     menu.append(Item(1, "icon", "", "title", "#"))
     menu.append(Item(2, "icon", 1, "title2", "#"))
-    menu.append(Item(3, "icon", 1, "title3", "#"))
-    menu.append(Item(4, "icon", 1, "title4", "#"))
-    menu.append(Item(5, "icon", "", "title5", "#"))
-    menu.append(Item(6, "icon", 5, "title6", "#"))
-    menu.append(Item(7, "icon", 6, "title7", "#"))
-    menu.append(Item(8, "icon", 5, "title8", "#"))
-    menu.append(Item(9, "icon", 1, "title9", "#"))
-    menu.append(Item(10, "icon", 1, "title10", "#"))
+    menu.append(Item(3, "icon", 2, "title3", "#"))
+    menu.append(Item(4, "icon", 3, "title4", "#"))
     generator_menu(menu)
 
     print(tree)
