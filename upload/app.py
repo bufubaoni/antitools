@@ -13,7 +13,7 @@ def upload():
     if request.method.lower() == "post":
         file = request.files.get("file")
         file.save("img/" + file.filename)
-        return "ok"
+        return file.filename
     else:
         return ("<form method='post' action='/upload' enctype='multipart/form-data'>"
                 "<input type='file' name='file'/>"
