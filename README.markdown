@@ -102,3 +102,12 @@ edit a block code for decorator copy and newer learning.
 9. menu creat
 ---------------------------------------------------------
 For use this script creat menu for any deep translate a  menu tree, it's useful.
+
+10. upload
+---------------------------------------------------------
+This is a simple service for upload file use by bottle.
+the dir will be in 
+
+    img/
+
+or you can modify the folder by yourself .
