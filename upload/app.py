@@ -19,8 +19,8 @@ def upload():
                 "<input type='file' name='file'/>"
                 "</br>"
                 "<input type='submit'/>"
-                "</form>")
+                "</form> ")
 
 
 if __name__ == '__main__':
-    bottle.run(app=app, host="0.0.0.0", port=8000)
+    bottle.run(app=app, host="0.0.0.0", port=8000, reloader=True)
