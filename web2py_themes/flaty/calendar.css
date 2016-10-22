@@ -3,7 +3,7 @@
     position: relative;
     display: none;
     background: #fff;
-    border: 2px solid #ffffff;
+    border: 2px solid #e5e5e5;
     font-size: 11px;
     color: #0a001f;
     cursor: default;
@@ -98,8 +98,8 @@
 }
 
 .calendar tbody td.today {
-    font-weight: bold;
-    background: #FF9900;
+    /*font-weight: bold;*/
+    background: #FFCC99;
     color: #0a001f;
 }
 
