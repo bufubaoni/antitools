@@ -24,7 +24,7 @@ the supervisor config file in
 set
 
     [inet_http_server]
-	port=0.0.0.0:9001  ;url for mange
+	port=0.0.0.0:9001  ; url for mange
 	username=user      ; base auth
 	password=pass      ;
 opt you shuold copy then
@@ -93,7 +93,21 @@ just the server down time.
 7. proxy list
 ---------------------------------------------------------
 long time ago write some spider for proxy,it have a default url,you should edit it if need.
+this state aways gone.
 
 8. Decorator learn
 ---------------------------------------------------------
 edit a block code for decorator copy and newer learning.
+
+9. menu creat
+---------------------------------------------------------
+For use this script creat menu for any deep translate a  menu tree, it's useful.
+
+10. upload
+---------------------------------------------------------
+This is a simple service for upload file use by bottle.
+the dir will be in 
+
+    img/
+
+or you can modify the folder by yourself .

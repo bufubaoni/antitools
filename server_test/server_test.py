@@ -20,7 +20,7 @@ def server_test(url):
 def run(url):
     while True:
         server_test(url)
-        time.sleep(60*5)
+        time.sleep(5)
 
 if __name__ == "__main__":
     run("http://192.168.1.110")
