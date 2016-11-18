@@ -5,11 +5,12 @@ import re
 
 def geturl(str):
     with open("op.txt", "r") as f:
-        print [(line.split(" ")[0], line.split(" ")[1].strip(),
-                "op" + line.split(" ")[0] + '.' +
-                line.split(" ")[1].strip().split('.')[-1],)
-               for line in f.readlines()]
-
+        lsurl = []
+        for line in f.readlines():
+            numb, url = line.split(" ")
+            lsurl.append((numb,
+                          url.strip(),
+                          "op" + numb + "." + url.split(".")[-1].strip()))
 
 if __name__ == "__main__":
     geturl(666)
