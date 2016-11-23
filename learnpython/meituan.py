@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/11/11
 from datetime import datetime, timedelta
+import time
 
 s = '''
 a 1
@@ -14,6 +15,19 @@ for item in s.strip().split("\n"):
     (key, value) = item.split(" ")
 
 
+def testtime(fn):
+
+
+    def wrapp(*args, **kwargs):
+        print("start time ----- {time}".format(time=time.time()))
+        temp = fn(*args, **kwargs)
+        print("stop time ----- {time}".format(time=time.time()))
+        return temp
+
+    return wrapp
+
+
+@testtime
 def dateaddmonth(datetime, month):
     day = datetime.day
     for i in range(0, month):
@@ -21,5 +35,12 @@ def dateaddmonth(datetime, month):
     return datetime
 
 
+@testtime
+def otherdateaddmonth(datetime, month):
+    return datetime + timedelta(month * 365 / 12)
+
+
 if __name__ == "__main__":
-    print(dateaddmonth(datetime.now(), 9))
+    print(dateaddmonth(datetime.now(), 90000))
+    time.sleep(1)
+    print(otherdateaddmonth(datetime.now(), 90000))
