@@ -111,3 +111,13 @@ the dir will be in
     img/
 
 or you can modify the folder by yourself .
+
+11. mysql_colunms
+---------------------------------------------------------
+export mysql custumer's table to excel with verson .
+need
+
+    pyday
+    xlsxwriter
+
+it just to excel for simple
