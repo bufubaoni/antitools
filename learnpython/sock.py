@@ -85,4 +85,6 @@ def main():
     tcpserver.serve_until_stopped()
 
 if __name__ == '__main__':
+    # default port 9020
+    # if your want get trance you should use logger.exception(e) the e is exceptation
     main()
