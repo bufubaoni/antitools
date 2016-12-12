@@ -12,8 +12,8 @@ logger.setLevel(logging.DEBUG)
 if __name__ == "__main__":
     logger.debug("testddd")
     logger.warn("warning")
-    # logger.info("yes")
-    # try:
-    #     str.qq
-    # except Exception as e:
-    #     logger.exception(e)
+    logger.info("yes")
+    try:
+        str.qq
+    except Exception as e:
+        logger.exception(e)
