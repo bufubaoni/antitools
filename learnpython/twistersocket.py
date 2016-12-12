@@ -8,6 +8,7 @@ import struct
 
 class Echo(protocol.Protocol):
     def dataReceived(self, data):
+        print 1
         data = self.dataUnpack(data=data)
         print data
 
@@ -15,11 +16,13 @@ class Echo(protocol.Protocol):
         chunk = data[:4]
         slen = struct.unpack('>L', chunk)[0]
         data = data[len(struct.pack(">L", slen)):]
+
         return cPickle.loads(data)
 
 
 class EchoFactory(protocol.Factory):
     def buildProtocol(self, addr):
+        print 2
         return Echo()
 
 

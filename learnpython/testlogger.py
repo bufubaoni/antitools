@@ -3,9 +3,9 @@
 # Created by Alex on 2016/12/9
 import logging
 import logging.config
+import time
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("test")
-logger.setLevel(logging.DEBUG)
 
 
 

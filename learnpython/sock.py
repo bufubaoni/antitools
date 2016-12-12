@@ -60,7 +60,7 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer):
     def __init__(self, host='localhost',
                  port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
                  handler=LogRecordStreamHandler):
-        print logging.handlers.DEFAULT_TCP_LOGGING_PORT
+        port = 8020
         SocketServer.ThreadingTCPServer.__init__(self, (host, port), handler)
         self.abort = 0
         self.timeout = 1
