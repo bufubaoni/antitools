@@ -4,13 +4,17 @@
 from twisted.internet import protocol, reactor, endpoints
 import cPickle
 import struct
-
+import logging
+import logging.config
+import time
+logging.config.fileConfig("logging.conf")
+logger = logging.getLogger("server")
 
 class Echo(protocol.Protocol):
     def dataReceived(self, data):
-        print 1
         data = self.dataUnpack(data=data)
-        print data
+        logger.info(data)
+        self.transport.write("ok")
 
     def dataUnpack(self, data):
         chunk = data[:4]
@@ -22,9 +26,8 @@ class Echo(protocol.Protocol):
 
 class EchoFactory(protocol.Factory):
     def buildProtocol(self, addr):
-        print 2
         return Echo()
 
 
-endpoints.serverFromString(reactor, "tcp:8020").listen(EchoFactory())
+endpoints.serverFromString(reactor, "tcp:8021").listen(EchoFactory())
 reactor.run()
