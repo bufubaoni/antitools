@@ -17,16 +17,11 @@ class Echo(protocol.Protocol):
         self._data = ""
 
     def dataReceived(self, data):
-        # data = self.dataUnpack(data=data)
         logger.debug("ok")
-        # self.transport.write("ok")
         logger.debug(len(data))
         self._data += data
-        if len(self._data) > 4:
-            logger.debug("6")
-            self.dataUnpack(self._data)
-        else:
-            logger.debug(len(self._data))
+        self.dataUnpack(self._data)
+
 
     def dataUnpack(self, data):
 
@@ -38,9 +33,8 @@ class Echo(protocol.Protocol):
         self._data = self._data[len(struct.pack(">L", slen)) + slen:]
         if len(self._data) > 4:
             self.dataUnpack(self._data)
-        print(cPickle.loads(temp))
+        print (cPickle.loads(temp))
 
-        # def dataHandler(self,data):
 
 
 class EchoFactory(protocol.Factory):
