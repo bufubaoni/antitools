@@ -121,3 +121,13 @@ need
     xlsxwriter
 
 it just to excel for simple
+
+12. learnpython
+----------------------------------------------------------
+some base informtion for pro in work
+    
+    logging.conf in it to use SocketHandler and HttpHandler
+    twisted is a logging server for this just easy for use
+
+this all
+
