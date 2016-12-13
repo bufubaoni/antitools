@@ -7,8 +7,6 @@ import time
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("test")
 
-
-
 if __name__ == "__main__":
     logger.debug("testddd")
     logger.info("yes")

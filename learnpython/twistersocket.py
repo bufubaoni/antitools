@@ -7,21 +7,40 @@ import struct
 import logging
 import logging.config
 import time
+
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("server")
+logger.setLevel(logging.INFO)
 
 class Echo(protocol.Protocol):
+    def __init__(self):
+        self._data = ""
+
     def dataReceived(self, data):
-        data = self.dataUnpack(data=data)
-        logger.info(data)
-        self.transport.write("ok")
+        # data = self.dataUnpack(data=data)
+        logger.debug("ok")
+        # self.transport.write("ok")
+        logger.debug(len(data))
+        self._data += data
+        if len(self._data) > 4:
+            logger.debug("6")
+            self.dataUnpack(self._data)
+        else:
+            logger.debug(len(self._data))
 
     def dataUnpack(self, data):
+
+        logger.debug("dataUpanck")
         chunk = data[:4]
         slen = struct.unpack('>L', chunk)[0]
-        data = data[len(struct.pack(">L", slen)):]
+        temp = data[len(struct.pack(">L", slen)):len(struct.pack(">L", slen)) + slen]
+        logger.debug("slen : {slen}".format(slen=slen))
+        self._data = self._data[len(struct.pack(">L", slen)) + slen:]
+        if len(self._data) > 4:
+            self.dataUnpack(self._data)
+        print(cPickle.loads(temp))
 
-        return cPickle.loads(data)
+        # def dataHandler(self,data):
 
 
 class EchoFactory(protocol.Factory):
