@@ -6,35 +6,40 @@ import cPickle
 import struct
 import logging
 import logging.config
-import time
 
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("server")
 logger.setLevel(logging.INFO)
+
 
 class Echo(protocol.Protocol):
     def __init__(self):
         self._data = ""
 
     def dataReceived(self, data):
-        logger.debug("ok")
-        logger.debug(len(data))
-        self._data += data
-        self.dataUnpack(self._data)
+        self._data = self._data.join(data)
+        logger.debug(len(self._data))
+        self.read()
 
+    def dataunpack(self, data):
+        return cPickle.loads(data)
 
-    def dataUnpack(self, data):
-
+    def datahandler(self, data):
         logger.debug("dataUpanck")
-        chunk = data[:4]
-        slen = struct.unpack('>L', chunk)[0]
-        temp = data[len(struct.pack(">L", slen)):len(struct.pack(">L", slen)) + slen]
-        logger.debug("slen : {slen}".format(slen=slen))
-        self._data = self._data[len(struct.pack(">L", slen)) + slen:]
-        if len(self._data) > 4:
-            self.dataUnpack(self._data)
-        print (cPickle.loads(temp))
+        if len(data) > 4:
+            chunk = data[:4]
+            slen = struct.unpack('>L', chunk)[0]
+            temp = data[len(struct.pack(">L", slen)):len(struct.pack(">L", slen)) + slen]
+            logger.debug("slen : {slen}".format(slen=slen))
+            self._data = self._data[len(struct.pack(">L", slen)) + slen:]
+            self.output(self.dataunpack(temp))
 
+    def read(self):
+        while len(self._data) > 4:
+            self.datahandler(self._data)
+
+    def output(self, data):
+        logger.info(data)
 
 
 class EchoFactory(protocol.Factory):
