@@ -130,3 +130,13 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     ...
     >>> result = dice_roll.send(3)
     Observed dice roll 3.
+## 订阅优化
+消息被非常快的发送，无论订阅者是否订阅，*receivers*属性可以有效的检测关键字的传递。
+    >>> bool(signal('ready').receivers)
+    True
+    >>> bool(signal('complete').receivers)
+    False
+    >>> bool(AltProcessor.on_complete.receivers)
+    True
+## 订阅文档
+命名和匿名的消息都可通过 *doc* 参数在构造时传递 pydoc 消息的帮助文档 。此文档可被大多数的文档生成器识别（如sphinx），并且非常适合同消息的其他数据一起发送。
