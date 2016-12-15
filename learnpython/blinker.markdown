@@ -92,3 +92,41 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
 *send()*的返回值将会整合到一个集合中，此集合的元素为(订阅者方法，返回值):
     >>> result
     [(<function receive_data at 0x...>, 'received!')]
+## 匿名消息
+消息并不强制命名，*Signal* 构造器会在调用时创建唯一消息。例如，将上面的 *Processor* 两个消息改成属性即可。
+    >>> from blinker import Signal
+    >>> class AltProcessor:
+    ...    on_ready = Signal()
+    ...    on_complete = Signal()
+    ...
+    ...    def __init__(self, name):
+    ...        self.name = name
+    ...
+    ...    def go(self):
+    ...        self.on_ready.send(self)
+    ...        print("Alternate processing.")
+    ...        self.on_complete.send(self)
+    ...
+    ...    def __repr__(self):
+    ...        return '<AltProcessor %s>' % self.name
+    ...
+## 装饰器
+其实*connect()*方法返回一个订阅者，所以*connect*可以当作一个装饰器：
+    >>> apc = AltProcessor('c')
+    >>> @apc.on_complete.connect
+    ... def completed(sender):
+    ...     print "AltProcessor %s completed!" % sender.name
+    ...
+    >>> apc.go()
+    Alternate processing.
+    AltProcessor c completed!
+方便之余，*sender*和*weak* 并不支持装饰器，但是可以使用*coneect_via()*方法代替：
+    >>> dice_roll = signal('dice_roll')
+    >>> @dice_roll.connect_via(1)
+    ... @dice_roll.connect_via(3)
+    ... @dice_roll.connect_via(5)
+    ... def odd_subscriber(sender):
+    ...     print("Observed dice roll %r." % sender)
+    ...
+    >>> result = dice_roll.send(3)
+    Observed dice roll 3.
