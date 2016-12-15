@@ -37,4 +37,45 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
 ## 消息广播
 消息会通过*Signal.send()*方法广播到订阅者。
 
-下面通过一个*Processor*的例子
+下面通过一个*Processor*的例子，当例子运行时会发布*ready*的消息，当完成的时候会发送*complete*的消息。它将*self*传递给*send()*方法，表示此实例是消息的发布者。
+
+    >>> class Processor:
+    ...    def __init__(self, name):
+    ...        self.name = name
+    ...
+    ...    def go(self):
+    ...        ready = signal('ready')
+    ...        ready.send(self)
+    ...        print("Processing.")
+    ...        complete = signal('complete')
+    ...        complete.send(self)
+    ...
+    ...    def __repr__(self):
+    ...        return '<Processor %s>' % self.name
+    ...
+    >>> processor_a = Processor('a')
+    >>> processor_a.go()
+    Got a signal sent by <Processor a>
+    Processing.
+
+*complete*消息在*go()*函数中，但是没有订阅者订阅*complete*消息，但是合法的。调用*send()*发送消息的时候如果没有订阅者，消息将不会发送（不必要的消息不发送，这是系统优化而来的）。
+
+## 订阅特殊消息
+消息发布时默认订阅者都会被调用，*Signal.connect()*方法接受可选参数来更严格的订阅一个消息发布：
+
+    >>> def b_subscriber(sender):
+    ...     print("Caught signal from processor_b.")
+    ...     assert sender.name == 'b'
+    ...
+    >>> processor_b = Processor('b')
+    >>> ready.connect(b_subscriber, sender=processor_b)
+    <function b_subscriber at 0x...>
+
+此方法只广播到实例*processor_b*，其余实例只能广播*ready*方法。
+    >>> processor_a.go()
+    Got a signal sent by <Processor a>
+    Processing.
+    >>> processor_b.go()
+    Got a signal sent by <Processor b>
+    Caught signal from processor_b.
+    Processing.
