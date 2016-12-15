@@ -72,6 +72,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     <function b_subscriber at 0x...>
 
 此方法只广播到实例*processor_b*，其余实例只能广播*ready*方法。
+
     >>> processor_a.go()
     Got a signal sent by <Processor a>
     Processing.
@@ -81,6 +82,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     Processing.
 ## 参数和返回值
 *send()*可传递关键字参数，这些参数将会被转发给订阅者的方法。
+
     >>> send_data = signal('send-data')
     >>> @send_data.connect
     ... def receive_data(sender, **kw):
@@ -94,6 +96,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     [(<function receive_data at 0x...>, 'received!')]
 ## 匿名消息
 消息并不强制命名，*Signal* 构造器会在调用时创建唯一消息。例如，将上面的 *Processor* 两个消息改成属性即可。
+
     >>> from blinker import Signal
     >>> class AltProcessor:
     ...    on_ready = Signal()
@@ -112,6 +115,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     ...
 ## 装饰器
 其实*connect()*方法返回一个订阅者，所以*connect*可以当作一个装饰器：
+
     >>> apc = AltProcessor('c')
     >>> @apc.on_complete.connect
     ... def completed(sender):
@@ -121,6 +125,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     Alternate processing.
     AltProcessor c completed!
 方便之余，*sender*和*weak* 并不支持装饰器，但是可以使用*coneect_via()*方法代替：
+
     >>> dice_roll = signal('dice_roll')
     >>> @dice_roll.connect_via(1)
     ... @dice_roll.connect_via(3)
@@ -132,6 +137,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     Observed dice roll 3.
 ## 订阅优化
 消息被非常快的发送，无论订阅者是否订阅，*receivers*属性可以有效的检测关键字的传递。
+
     >>> bool(signal('ready').receivers)
     True
     >>> bool(signal('complete').receivers)
