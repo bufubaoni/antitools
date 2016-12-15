@@ -79,3 +79,16 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
     Got a signal sent by <Processor b>
     Caught signal from processor_b.
     Processing.
+## 参数和返回值
+*send()*可传递关键字参数，这些参数将会被转发给订阅者的方法。
+    >>> send_data = signal('send-data')
+    >>> @send_data.connect
+    ... def receive_data(sender, **kw):
+    ...     print("Caught signal from %r, data %r" % (sender, kw))
+    ...     return 'received!'
+    ...
+    >>> result = send_data.send('anonymous', abc=123)
+    Caught signal from 'anonymous', data {'abc': 123}
+*send()*的返回值将会整合到一个集合中，此集合的元素为(订阅者方法，返回值):
+    >>> result
+    [(<function receive_data at 0x...>, 'received!')]
