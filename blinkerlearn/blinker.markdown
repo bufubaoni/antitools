@@ -25,7 +25,7 @@ Blinker 作者为Jason Kirtand 遵循MIT协议，使用高于Python 2.4，3.0，
 当调用*signal('name')*返回一个订阅的单例，允许未连接部分(模块,插件,任何地方)调用而不需要导入其他代码。
 
 ## 订阅者
-*Signal.connect()*注册一个可调用的函数每次广播消息时被调用。订阅者的函数也会在消息发布时被调用。
+ *Signal.connect()* 注册一个可调用的函数每次广播消息时被调用。订阅者的函数也会在消息发布时被调用。
 
     >>> def subscriber(sender):
     ...     print("Got a signal sent by %r" % sender)
