@@ -38,6 +38,3 @@ for i in range(0,10):
     time.sleep(sleep)
 with open("test.txt","a") as f:
     f.write(str(pt))
-
-if __name__ == '__main__':
-    pass
