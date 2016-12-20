@@ -11,6 +11,7 @@ from pyquery import PyQuery as pq
 
 pt = PrettyTable()
 pt.field_names=[u"编号",u"名称"]
+pt.align[u"名称"]="l"
 session = requests.Session()
 # url = "https://movie.douban.com/top250"
 # content = session.get(url).content
