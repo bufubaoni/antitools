@@ -75,3 +75,6 @@ session/
 # c learning
 clearn/*.exe
 clearn/*.o
+clearn/*/*.o
+clearn/*/*.exe
+clearn/*/*.cbp
