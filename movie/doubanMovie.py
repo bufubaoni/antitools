@@ -39,5 +39,5 @@ for i in range(0,10):
     sleep = random.randrange(20)
     print("page {page},----sleep({sleep})".format(page=i,sleep=sleep))
     time.sleep(sleep)
-with open("test.txt","a") as f:
+with open("movie.txt","a") as f:
     f.write(str(pt))

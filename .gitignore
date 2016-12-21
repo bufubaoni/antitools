@@ -71,3 +71,7 @@ docs/_build/
 target/
 Database/db.sqlite-journal
 session/
+
+# c learning
+clearn/*.exe
+clearn/*.o
