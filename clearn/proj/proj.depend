@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1482325603 source:d:\antitools\clearn\proj\exercise_1_8.c
+
+1482330728 source:d:\antitools\clearn\proj\main.c
+	<stdio.h>
+	<stdlib.h>
+	"exercise_1.h"
+
+1482330655 d:\antitools\clearn\proj\exercise_1.h
+
