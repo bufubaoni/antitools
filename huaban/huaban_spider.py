@@ -15,16 +15,26 @@ logger = logging.getLogger("huaban")
 
 session = requests.Session()
 
+nexturl = "http://huaban.com/boards/15759013/?qq-pf-to=pcqq.group&ix8ifces&max={max}&limit=20&wfl=1"
+
 
 def get_html_content(url):
     content = session.get(url)
     if content.ok:
         return content.text
 
+
 def get_pins(pars):
     return pars.get("pins")
 
 
+def last_pin(pins):
+    return pins[:-1]
+
+
+def next_page_url(last_pin, nexturl=nexturl):
+    url = nexturl.format(max=last_pin.get("pin_id"))
+    return url
 
 
 # print content.text
@@ -33,4 +43,3 @@ if __name__ == '__main__':
     url = "http://huaban.com/boards/15759013/"
 
     logger.debug(pars(get_html_content(url)))
-
