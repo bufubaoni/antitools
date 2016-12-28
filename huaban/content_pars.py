@@ -11,8 +11,8 @@ logger = logging.getLogger("pars")
 
 def pars(content):
     board = dict()
+    content = content.split("\n")
     for line in content:
-        # logger.debug(line)
         board = app_board(line)
         if board:
             board = json_board(board)
@@ -39,4 +39,4 @@ def json_board(app_board_line):
 if __name__ == '__main__':
     with open("page.html", "r") as f:
         content = f.readlines()
-        pars(content)
+        pars("".join(content))
