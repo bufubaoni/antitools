@@ -37,6 +37,27 @@ def next_page_url(last_pin, nexturl=nexturl):
     return url
 
 
+def send_pin(pin):
+    pass
+
+
+def main(url):
+    url = url
+    par = True
+    while par:
+        logger.debug(par)
+        par = pars(get_html_content(url))
+        if par:
+            pins = get_pins(par)
+            last_pin = get_last_pin(pins)
+            for pin in pins:
+                send_pin(pin)
+            url = next_page_url(last_pin)
+            logger.debug(url)
+
+        else:
+            logger.info("finished")
+
 # print content.text
 
 if __name__ == '__main__':
@@ -52,3 +73,5 @@ if __name__ == '__main__':
 
     next_url = next_page_url(last_pin)
     logger.debug(next_url)
+
+    main(url)
