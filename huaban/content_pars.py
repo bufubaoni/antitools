@@ -11,6 +11,7 @@ logger = logging.getLogger("pars")
 
 def pars(content):
     board = dict()
+    logger.debug(content)
     content = content.split("\n")
     for line in content:
         board = app_board(line)

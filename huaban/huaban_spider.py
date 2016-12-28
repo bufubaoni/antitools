@@ -18,11 +18,12 @@ session = requests.Session()
 
 def get_html_content(url):
     content = session.get(url)
-    if "200" in content:
+    if content.ok:
         return content.text
 
-def get_pins():
-    pass
+def get_pins(pars):
+    return pars.get("pins")
+
 
 
 
@@ -32,3 +33,4 @@ if __name__ == '__main__':
     url = "http://huaban.com/boards/15759013/"
 
     logger.debug(pars(get_html_content(url)))
+
