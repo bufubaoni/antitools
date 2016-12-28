@@ -19,9 +19,9 @@ def pars(content):
             break
     return board
 
+
 def app_board(line):
     if 'app.page["board"]' in line:
-        logger.debug("=============board===========")
         logger.debug(line)
         return line
     else:
@@ -29,12 +29,12 @@ def app_board(line):
 
 
 def json_board(app_board_line):
+    temp_board = "".join(app_board_line.split("=")[1:])
+    logger.debug(temp_board.strip()[:-1])
+    json_b = json.loads(temp_board.strip()[:-1])
+    logger.debug("==============decode json================")
+    return json_b
 
-    temp_board = app_board_line.split("=")[1]
-    logger.debug(temp_board)
-
-    # logger.debug(json_b)
-    # return json_b
 
 if __name__ == '__main__':
     with open("page.html", "r") as f:
