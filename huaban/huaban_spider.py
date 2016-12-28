@@ -9,6 +9,7 @@ import logging.config
 import requests
 
 from content_pars import pars
+from sheduler import save_task
 
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("huaban")
