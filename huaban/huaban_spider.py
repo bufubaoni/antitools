@@ -28,8 +28,8 @@ def get_pins(pars):
     return pars.get("pins")
 
 
-def last_pin(pins):
-    return pins[:-1]
+def get_last_pin(pins):
+    return pins[:-1][0]
 
 
 def next_page_url(last_pin, nexturl=nexturl):
@@ -41,5 +41,14 @@ def next_page_url(last_pin, nexturl=nexturl):
 
 if __name__ == '__main__':
     url = "http://huaban.com/boards/15759013/"
+    par = pars(get_html_content(url))
+    logger.debug(par)
 
-    logger.debug(pars(get_html_content(url)))
+    pins = get_pins(par)
+    logger.debug(pins)
+
+    last_pin = get_last_pin(pins)
+    logger.debug(last_pin)
+
+    next_url = next_page_url(last_pin)
+    logger.debug(next_url)
