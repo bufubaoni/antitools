@@ -14,9 +14,21 @@ logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("huaban")
 
 session = requests.Session()
-content = session.get("http://huaban.com/boards/15759013/")
+
+
+def get_html_content(url):
+    content = session.get(url)
+    if "200" in content:
+        return content.text
+
+def get_pins():
+    pass
+
+
 
 # print content.text
 
 if __name__ == '__main__':
-    logger.debug(pars(content.text))
+    url = "http://huaban.com/boards/15759013/"
+
+    logger.debug(pars(get_html_content(url)))
