@@ -4,6 +4,7 @@
 import logging
 import logging.config
 import json
+import os
 
 import requests
 
@@ -12,6 +13,7 @@ logger = logging.getLogger("save")
 
 baseurl = "http://img.hb.aicdn.com/"
 extenturl = "fw658"
+basedir = "download/"
 
 
 def _get_file_url(baseurl, pin, extenturl):
@@ -25,13 +27,19 @@ def _get_file_extend(pin):
     return ext
 
 
-def save_file(pin, baseurl=baseurl, extenturl=extenturl):
+def save_file(pin, baseurl=baseurl, extenturl=extenturl, basedir=basedir):
     url = _get_file_url(baseurl, pin, extenturl)
     ext = _get_file_extend(pin)
     file_name = str(pin.get("file").get("id")) + ext
-    with open(file_name, "wb") as fd:
-        for chunk in requests.get(url, stream=True):
-            fd.write(chunk)
+    path = basedir + file_name
+    if not os.path.exists(basedir):
+        os.makedirs(basedir)
+    if not os.path.exists(path):
+        with open(path, "wb") as fd:
+            for chunk in requests.get(url, stream=True):
+                fd.write(chunk)
+    else:
+        logger.debug("exists")
 
 
 if __name__ == "__main__":
