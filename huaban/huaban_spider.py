@@ -67,10 +67,13 @@ def get_html_content(url):
 
 
 def get_json_content(url):
+    logger.debug(url)
     _headers = get_headers(jsonaccept=True)
     try:
         content = session.get(url, headers=_headers)
-    except:
+        logger.debug(content.text)
+    except Exception as e:
+        logger.debug(e)
         return None
     if content.ok:
         return content.json()
@@ -85,12 +88,7 @@ def get_pins_count(pars):
 
 
 def next_page_url(last_pin, nexturl=nexturl):
-    try:
-        url = nexturl.format(max=last_pin.get("pin_id"))
-    except Exception as e:
-        logger.error(e)
-        logger.error(last_pin)
-        url = None
+    url = nexturl.format(max=last_pin.get("pin_id"))
     return url
 
 
@@ -111,13 +109,7 @@ def save_url(url):
         f.write(url + "\n")
 
 
-# @len_pin_message.connect
-def len_pins(pins):
-    with open("len_pins.txt", "a") as f:
-        f.write(str(len(pins)) + "\n")
-
-
-def main(url):
+def main(url, nexturl=nexturl):
     url = url
     logger.info("=========begin============")
     logger.info(url)
@@ -126,11 +118,12 @@ def main(url):
     logger.debug(pins_cont)
     _get_pins_count = 0
     _get_pins_count += 30
+    _get_pins_count -= 20
     step = 20
     last_pin = True
 
     while _get_pins_count < pins_cont and last_pin:
-        logger.debug(url)
+        _get_pins_count += step
         url_message.send(url)
         pins = get_pins(par)
         len_pin_message.send(pins)
@@ -144,15 +137,14 @@ def main(url):
         if par:
             par = par.get("board")
         logger.debug(par)
-        _get_pins_count += step
     logger.info("=============finished===========")
 
 
 # print content.text
 
 if __name__ == '__main__':
-    url = "http://huaban.com/boards/2874262/"
-
+    url = "http://huaban.com/boards/28266958/?"
+    nexturl = url + "&max={max}&limit=20&wfl=1"
     # par = pars(get_html_content(url))
     # logger.debug(par)
     #
@@ -167,10 +159,7 @@ if __name__ == '__main__':
     #
     # for pin in pins:
     #     send_pin(pin)
-    # json_url = "http://huaban.com/boards/2874262/?ix9ofakh&max=29106648&limit=20&wfl=1"
+    # json_url = "http://huaban.com/boards/15759013/?qq-pf-to=pcqq.group&max=160845549&limit=20&wfl=1"
     # par = get_json_content(json_url)
-    # if par:
-    #     par = par.get("board")
-    # else:
-    #     print "ok"
-    main(url)
+    # print json.dumps(par.get("board").get("pins"))
+    main(url, nexturl=nexturl)
