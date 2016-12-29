@@ -68,11 +68,12 @@ def get_html_content(url):
 
 def get_json_content(url):
     _headers = get_headers(jsonaccept=True)
-    content = session.get(url, headers=_headers)
+    try:
+        content = session.get(url, headers=_headers)
+    except:
+        return None
     if content.ok:
         return content.json()
-    else:
-        pass
 
 
 def get_pins(pars):
@@ -81,13 +82,6 @@ def get_pins(pars):
 
 def get_pins_count(pars):
     return pars.get("pin_count")
-
-
-def get_last_pin(pins):
-    try:
-        return pins[:-1][0]
-    except:
-        return None
 
 
 def next_page_url(last_pin, nexturl=nexturl):
@@ -133,19 +127,23 @@ def main(url):
     _get_pins_count = 0
     _get_pins_count += 30
     step = 20
-    while _get_pins_count < pins_cont:
+    last_pin = True
+
+    while _get_pins_count < pins_cont and last_pin:
         logger.debug(url)
         url_message.send(url)
         pins = get_pins(par)
         len_pin_message.send(pins)
-        last_pin = ""
-
+        last_pin = None
         for pin in pins:
             logger.debug(pin)
             pin_message.send(pin)
             last_pin = pin
         url = next_page_url(last_pin, nexturl)
-        par = get_json_content(url).get("board")
+        par = get_json_content(url)
+        if par:
+            par = par.get("board")
+        logger.debug(par)
         _get_pins_count += step
     logger.info("=============finished===========")
 
@@ -169,6 +167,10 @@ if __name__ == '__main__':
     #
     # for pin in pins:
     #     send_pin(pin)
-    # json_url = "http://huaban.com/boards/2874262/?ix9psr1o&max=995517430&limit=20&wfl=1"
-    # get_json_content(json_url)
+    # json_url = "http://huaban.com/boards/2874262/?ix9ofakh&max=29106648&limit=20&wfl=1"
+    # par = get_json_content(json_url)
+    # if par:
+    #     par = par.get("board")
+    # else:
+    #     print "ok"
     main(url)
