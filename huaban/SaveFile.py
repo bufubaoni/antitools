@@ -7,7 +7,7 @@ import json
 import os
 import time
 import random
-from huaban_spider import pin_message
+# from huaban_spider import pin_message
 
 import requests
 
@@ -34,7 +34,7 @@ def _get_file_extend(pin):
     return ext
 
 
-@pin_message.connect
+# @pin_message.connect
 def save_file(pin, baseurl=baseurl, extenturl=extenturl, basedir=basedir):
     url = _get_file_url(baseurl, pin, extenturl)
     ext = _get_file_extend(pin)
@@ -48,7 +48,6 @@ def save_file(pin, baseurl=baseurl, extenturl=extenturl, basedir=basedir):
     if not os.path.exists(path) and file_name:
         try:
             with open(path, "wb") as fd:
-                logger.info(url)
                 for chunk in requests.get(url, stream=True):
                     fd.write(chunk)
         except Exception as e:
@@ -58,7 +57,6 @@ def save_file(pin, baseurl=baseurl, extenturl=extenturl, basedir=basedir):
             time.sleep(sleep)
             save_file(pin)
     else:
-        logger.debug(path)
         logger.debug("exists")
 
 

@@ -11,7 +11,7 @@ from blinker import signal
 import requests
 
 from content_pars import pars
-# from sheduler import save_task
+from sheduler import save_task
 
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("huaban")
@@ -19,13 +19,15 @@ logger = logging.getLogger("huaban")
 session = requests.Session()
 
 pin_message = signal("pin")
+url_message = signal("url")
+len_pin_message = signal("len_pins")
 
-nexturl = "http://huaban.com/boards/2874262/?ix8zyuca&max={max}&limit=20&wfl=1"
+nexturl = "http://huaban.com/boards/2874262/?ix9ofakh&max={max}&limit=20&wfl=1"
 
 
-def get_headers():
+def get_headers(jsonaccept=False):
     head_connection = ['Keep-Alive', 'close']
-    head_accept = ['text/html, application/xhtml+xml, */*']
+    head_accept = ['text/html, application/xhtml+xml, */*', "application/json"]
     head_accept_language = ['zh-CN,fr-FR;q=0.5',
                             'en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3']
     head_user_agent = [
@@ -43,6 +45,14 @@ def get_headers():
         'Accept-Language': head_accept_language[1],
         'User-Agent': head_user_agent[2]
     }
+    if jsonaccept:
+        _headers["Accept"] = "application/json"
+        _headers["X-Request"] = "JSON"
+        _headers["Accept-Encoding"] = "gzip, deflate"
+        _headers["X-Requested-With"] = "XMLHttpRequest"
+        _headers["Referer"] = "http://huaban.com/boards/2874262/"
+        _headers[
+            "Cookie"] = "sid=Csw4TNIsPjYXApXhSQQUq6JpCUE.y4yG47bzvrq6tODS1opvkyrQvTPSKbckoK0LB1SpMUg"
     return _headers
 
 
@@ -54,6 +64,15 @@ def get_html_content(url):
     else:
         logger.debug("not ok")
         logger.debug(content.text)
+
+
+def get_json_content(url):
+    _headers = get_headers(jsonaccept=True)
+    content = session.get(url, headers=_headers)
+    if content.ok:
+        return content.json()
+    else:
+        pass
 
 
 def get_pins(pars):
@@ -72,41 +91,61 @@ def get_last_pin(pins):
 
 
 def next_page_url(last_pin, nexturl=nexturl):
-    url = nexturl.format(max=last_pin.get("pin_id"))
+    try:
+        url = nexturl.format(max=last_pin.get("pin_id"))
+    except Exception as e:
+        logger.error(e)
+        logger.error(last_pin)
+        url = None
     return url
 
 
-# @pin_message.connect
+@pin_message.connect
 def send_pin(pin):
     save_task.delay(pin)
 
 
-# @pin_message.connect
+@pin_message.connect
 def save_pin(pin):
-    with open("pins.txt", "a") as f:
+    with open("pins1.txt", "a") as f:
         f.write(json.dumps(pin) + "\n")
+
+
+@url_message.connect
+def save_url(url):
+    with open("url.txt", "a") as f:
+        f.write(url + "\n")
+
+
+# @len_pin_message.connect
+def len_pins(pins):
+    with open("len_pins.txt", "a") as f:
+        f.write(str(len(pins)) + "\n")
 
 
 def main(url):
     url = url
-    par = True
     logger.info("=========begin============")
-
-    logger.info(par)
     logger.info(url)
     par = pars(get_html_content(url))
     pins_cont = get_pins_count(par)
     logger.debug(pins_cont)
     _get_pins_count = 0
+    _get_pins_count += 30
     step = 20
     while _get_pins_count < pins_cont:
+        logger.debug(url)
+        url_message.send(url)
         pins = get_pins(par)
-        last_pin = get_last_pin(pins)
+        len_pin_message.send(pins)
+        last_pin = ""
+
         for pin in pins:
             logger.debug(pin)
             pin_message.send(pin)
-        url = next_page_url(last_pin)
-        get_html_content(url)
+            last_pin = pin
+        url = next_page_url(last_pin, nexturl)
+        par = get_json_content(url).get("board")
         _get_pins_count += step
     logger.info("=============finished===========")
 
@@ -130,5 +169,6 @@ if __name__ == '__main__':
     #
     # for pin in pins:
     #     send_pin(pin)
-
+    # json_url = "http://huaban.com/boards/2874262/?ix9psr1o&max=995517430&limit=20&wfl=1"
+    # get_json_content(json_url)
     main(url)

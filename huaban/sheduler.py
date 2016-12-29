@@ -4,14 +4,16 @@
 import logging
 import logging.config
 from celery import Celery
-from SaveFile import save_file
+from SaveFile import save_file, basedir
+
+basedir = "D:/downloads/"
 
 app = Celery()
 
 
 @app.task
-def save_task(pin):
-    save_file(pin)
+def save_task(pin, basedir=basedir):
+    save_file(pin, basedir=basedir)
 
 
 logging.config.fileConfig("logging.conf")
