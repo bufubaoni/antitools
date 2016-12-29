@@ -78,3 +78,6 @@ clearn/*.o
 clearn/*/*.o
 clearn/*/*.exe
 clearn/*/*.cbp
+
+huaban/download/
+huaban/log/*.*

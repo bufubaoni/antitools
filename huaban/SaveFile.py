@@ -5,6 +5,9 @@ import logging
 import logging.config
 import json
 import os
+import time
+import random
+from huaban_spider import pin_message
 
 import requests
 
@@ -21,24 +24,41 @@ def _get_file_url(baseurl, pin, extenturl):
     return url
 
 
+def _get_file_name(pin):
+    _name = pin.get("file").get("key")
+    return _name
+
+
 def _get_file_extend(pin):
     ext = "." + pin.get("file").get("type").split("/")[1]
-    logger.debug(ext)
     return ext
 
 
+@pin_message.connect
 def save_file(pin, baseurl=baseurl, extenturl=extenturl, basedir=basedir):
     url = _get_file_url(baseurl, pin, extenturl)
     ext = _get_file_extend(pin)
-    file_name = str(pin.get("file").get("id")) + ext
+    file_name = _get_file_name(pin)
+    if file_name:
+        file_name = str(file_name) + ext
     path = basedir + file_name
+    logger.info(path)
     if not os.path.exists(basedir):
         os.makedirs(basedir)
-    if not os.path.exists(path):
-        with open(path, "wb") as fd:
-            for chunk in requests.get(url, stream=True):
-                fd.write(chunk)
+    if not os.path.exists(path) and file_name:
+        try:
+            with open(path, "wb") as fd:
+                logger.info(url)
+                for chunk in requests.get(url, stream=True):
+                    fd.write(chunk)
+        except Exception as e:
+            logger.warning(e)
+            sleep = random.randrange(20)
+            logger.info("========wait {sleetp}==============".format(sleep=sleep))
+            time.sleep(sleep)
+            save_file(pin)
     else:
+        logger.debug(path)
         logger.debug("exists")
 
 
