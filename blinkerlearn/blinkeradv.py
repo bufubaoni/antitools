@@ -4,6 +4,7 @@
 
 from blinker import signal
 
+
 test_message = signal("test")
 
 
@@ -11,9 +12,10 @@ test_message = signal("test")
 def test_a(sender):
     print("this is test a by sender: {sender}".format(sender=sender))
 
-
 @test_message.connect
 def test_b(sender):
     print("this is test b by sender: {sender}".format(sender=sender))
+
+
 
 test_message.send("haha")

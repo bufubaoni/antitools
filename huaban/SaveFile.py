@@ -25,7 +25,7 @@ def _get_file_url(baseurl, pin, extenturl):
 
 
 def _get_file_name(pin):
-    _name = pin.get("file").get("key")
+    _name = pin.get("file_id")
     return _name
 
 
