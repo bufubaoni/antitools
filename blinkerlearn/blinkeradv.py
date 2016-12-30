@@ -17,5 +17,5 @@ def test_b(sender):
     print("this is test b by sender: {sender}".format(sender=sender))
 
 
-import other
+
 test_message.send("haha")
