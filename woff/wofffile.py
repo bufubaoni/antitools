@@ -5,7 +5,10 @@ import requests
 from pyquery import PyQuery as pq
 from blinker import signal
 import json
+from collections import OrderedDict
 
+
+from woff2otf import convert_streams
 numb_signal = signal("numb")
 save_file_signal = signal("save")
 sesson = requests.Session()
@@ -26,6 +29,12 @@ def get_numb():
         print (title, number_total, number_realtime)
     save_file_signal.send("go")
 
+def get_woff_url():
+    woffs=pq(content.text)("style")
+    for line in woffs.text().split("\n"):
+        if "woff" in line:
+            return line.split(")")[0].strip()[5:-1]
+
 
 num = set()
 
@@ -38,12 +47,25 @@ def c(s):
             num.add(item)
     return num
 
+def save_woff(url):
+    path = "test.woff"
+    with open(path,"wb") as f:
+        for buck in sesson.get(url):
+            f.write(buck)
+    return path
+
+def convent2otf(path):
+    outpath = "test.otf"
+    convert_streams(path,outpath)
 
 @save_file_signal.connect
 def save_file(s):
     with open("num.txt", "a") as f:
-        f.write(json.dumps(list(num)) + "\n")
+        p = list(num)
+        p.sort()
+        od = OrderedDict(sorted({item: item for item in p}.items(), key=lambda t: t[0]))
+        f.write(json.dumps(od) + "\n")
 
 
 if __name__ == "__main__":
-    get_numb()
+    save_file(get_woff_url())

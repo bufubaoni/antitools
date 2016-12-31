@@ -143,7 +143,7 @@ def main(url, nexturl=nexturl):
 # print content.text
 
 if __name__ == '__main__':
-    url = "http://huaban.com/boards/28266958/?"
+    url = "http://huaban.com/boards/27943430/?"
     nexturl = url + "&max={max}&limit=20&wfl=1"
     # par = pars(get_html_content(url))
     # logger.debug(par)
