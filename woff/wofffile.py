@@ -14,6 +14,7 @@ content = sesson.get(url)
 
 dds = pq(content.text)("dl.board-wrapper>dd")
 
+
 def get_numb():
     for dd in dds:
         tdd = pq(dd)
@@ -22,8 +23,10 @@ def get_numb():
         number_total = tdd("div>div>div.movie-item-number>p.total-boxoffice>span>span.stonefont").text()
         numb_signal.send(number_total)
         numb_signal.send(number_realtime)
-
+        print (title, number_total, number_realtime)
     save_file_signal.send("go")
+
+
 num = set()
 
 
@@ -39,7 +42,7 @@ def c(s):
 @save_file_signal.connect
 def save_file(s):
     with open("num.txt", "a") as f:
-        f.write(json.dumps(list(num))+"\n")
+        f.write(json.dumps(list(num)) + "\n")
 
 
 if __name__ == "__main__":
