@@ -39,18 +39,6 @@ def get_woff_url():
             return line.split(")")[0].strip()[5:-1]
 
 
-num = set()
-
-
-@numb_signal.connect
-def c(s):
-    for item in s.__repr__().split("\u"):
-        item.strip(".")
-        if len(item) == 4:
-            num.add(item)
-    return num
-
-
 def convert_number(s):
     url = get_woff_url()
     wof = save_woff(url)
@@ -81,7 +69,7 @@ def convent2otf(path):
 
 
 def par_xml(path):
-    root = ET.parse("test.xml")
+    root = ET.parse(path)
     _numbs = dict()
     numbs = root.iter("GlyphID")
     for numb in numbs:
@@ -98,19 +86,5 @@ def convert2xml(path):
     return path
 
 
-@save_file_signal.connect
-def save_file(s):
-    with open("num.txt", "a") as f:
-        p = list(num)
-        p.sort()
-        od = OrderedDict(sorted({item: item for item in p}.items(), key=lambda t: t[0]))
-        f.write(json.dumps(od) + "\n")
-
-
 if __name__ == "__main__":
-    # get_numb()
-    # convert2xml(convent2otf(save_woff(get_woff_url())))
-    # convert_number("")
-    # print par_xml("test.xml")
-    # print convert_number(u'\ue503.\ue3c3\uf3b9')
     get_numb()
