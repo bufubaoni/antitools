@@ -45,13 +45,13 @@ def convert_number(s):
     otf = convent2otf(wof)
     xml = convert2xml(otf)
     _dict = par_xml(xml)
-    _lst_uicode = []
+    _lst_uincode = []
     for item in s.__repr__().split("\u"):
-        _lst_uicode.append("uni" + item[:4].upper())
+        _lst_uincode.append("uni" + item[:4].upper())
         if item[4:]:
-            _lst_uicode.append(item[4:])
-    _lst_uicode = _lst_uicode[1:-1]
-    return "".join([_dict[i] for i in _lst_uicode])
+            _lst_uincode.append(item[4:])
+    _lst_uincode = _lst_uincode[1:-1]
+    return "".join([_dict[i] for i in _lst_uincode])
 
 
 def save_woff(url):
