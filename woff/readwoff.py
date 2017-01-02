@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2017/1/1
 import struct
+import zlib
 
 def woff_headers(infile):
     WOFFHeader = {'signature': struct.unpack(">I", infile.read(4))[0],
@@ -19,9 +20,34 @@ def woff_headers(infile):
                   'privLength': struct.unpack(">I", infile.read(4))[0]}
     return WOFFHeader
 
+
 def readf(path):
     with open(path, "rb") as f:
-        print woff_headers(f)
+        _woff_headers = woff_headers(f)
+        maximum = list(filter(lambda x: x[1] <= _woff_headers['numTables'], [(n, 2 ** n) for n in range(64)]))[-1]
+        searchRange = maximum[1] * 16
+        entrySelector = maximum[0]
+        rangeShift = _woff_headers['numTables'] * 16 - searchRange
+        TableDirectoryEntries = []
+
+        for i in range(0, _woff_headers['numTables']):
+            TableDirectoryEntries.append({'tag': struct.unpack(">I", f.read(4))[0],
+                                          'offset': struct.unpack(">I", f.read(4))[0],
+                                          'compLength': struct.unpack(">I", f.read(4))[0],
+                                          'origLength': struct.unpack(">I", f.read(4))[0],
+                                          'origChecksum': struct.unpack(">I", f.read(4))[0]})
+        for TableDirectoryEntry in TableDirectoryEntries:
+            f.seek(TableDirectoryEntry['offset'])
+            compressedData = f.read(TableDirectoryEntry['compLength'])
+            print compressedData.__repr__()
+            if TableDirectoryEntry['compLength'] != TableDirectoryEntry['origLength']:
+                uncompressedData = zlib.decompress(compressedData)
+            else:
+                uncompressedData = compressedData
+
+
+
+        print TableDirectoryEntries
 
 
 if __name__ == "__main__":
