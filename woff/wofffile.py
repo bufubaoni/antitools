@@ -5,8 +5,8 @@ import requests
 from pyquery import PyQuery as pq
 from blinker import signal
 
-
 from readwoff import get_dict_numb_from_woff
+
 numb_signal = signal("numb")
 save_file_signal = signal("save")
 sesson = requests.Session()
@@ -17,12 +17,13 @@ dds = pq(content.text)("dl.board-wrapper>dd")
 
 
 def get_numb():
-
     for dd in dds:
         tdd = pq(dd)
         title = tdd("div>div>div.movie-item-info>p.name").text()
-        number_realtime = tdd("div>div>div.movie-item-number>p.realtime>span>span.stonefont").text()
-        number_total = tdd("div>div>div.movie-item-number>p.total-boxoffice>span>span.stonefont").text()
+        number_realtime = tdd(
+            "div>div>div.movie-item-number>p.realtime>span>span.stonefont").text()
+        number_total = tdd(
+            "div>div>div.movie-item-number>p.total-boxoffice>span>span.stonefont").text()
         numb_signal.send(number_total)
         numb_signal.send(number_realtime)
         print (title, convert_number(number_total), convert_number(number_realtime))
@@ -55,7 +56,6 @@ def save_woff(url):
         for buck in sesson.get(url, stream=True):
             f.write(buck)
     return path
-
 
 
 if __name__ == "__main__":
