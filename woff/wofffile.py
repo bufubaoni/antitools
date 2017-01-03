@@ -4,12 +4,8 @@
 import requests
 from pyquery import PyQuery as pq
 from blinker import signal
-import json
-from collections import OrderedDict
-import xml.etree.ElementTree as ET
 
-from woff2otf import convert
-from fontTools.ttLib import TTFont
+from readwoff import get_dict_numb_from_woff
 
 numb_signal = signal("numb")
 save_file_signal = signal("save")
@@ -24,8 +20,10 @@ def get_numb():
     for dd in dds:
         tdd = pq(dd)
         title = tdd("div>div>div.movie-item-info>p.name").text()
-        number_realtime = tdd("div>div>div.movie-item-number>p.realtime>span>span.stonefont").text()
-        number_total = tdd("div>div>div.movie-item-number>p.total-boxoffice>span>span.stonefont").text()
+        number_realtime = tdd(
+            "div>div>div.movie-item-number>p.realtime>span>span.stonefont").text()
+        number_total = tdd(
+            "div>div>div.movie-item-number>p.total-boxoffice>span>span.stonefont").text()
         numb_signal.send(number_total)
         numb_signal.send(number_realtime)
         print (title, convert_number(number_total), convert_number(number_realtime))
@@ -41,10 +39,8 @@ def get_woff_url():
 
 def convert_number(s):
     url = get_woff_url()
-    wof = save_woff(url)
-    otf = convent2otf(wof)
-    xml = convert2xml(otf)
-    _dict = par_xml(xml)
+    path = save_woff(url)
+    _dict = get_dict_numb_from_woff(path)
     _lst_uincode = []
     for item in s.__repr__().split("\u"):
         _lst_uincode.append("uni" + item[:4].upper())
@@ -59,30 +55,6 @@ def save_woff(url):
     with open(path, "wb") as f:
         for buck in sesson.get(url, stream=True):
             f.write(buck)
-    return path
-
-
-def convent2otf(path):
-    outpath = "test.otf"
-    convert(path, outpath)
-    return outpath
-
-
-def par_xml(path):
-    root = ET.parse(path)
-    _numbs = dict()
-    numbs = root.iter("GlyphID")
-    for numb in numbs:
-        if len(numb.get("name")) == 7:
-            _numbs[numb.get("name")] = str(int(numb.get("id")) - 2)
-    _numbs["."] = "."
-    return _numbs
-
-
-def convert2xml(path):
-    ttl = TTFont(path)
-    path = "test.xml"
-    ttl.saveXML(path)
     return path
 
 
