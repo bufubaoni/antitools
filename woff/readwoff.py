@@ -56,4 +56,4 @@ def get_dict_numb_from_woff(path):
 
 
 if __name__ == "__main__":
-    print readf("test.woff")
+    print get_dict_numb_from_woff("test.woff")
