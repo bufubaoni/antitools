@@ -31,10 +31,11 @@ def writetoexcel(worksheet=None, tables=None):
 def exporttable(worksheet=None, table=None, start=None):
     tablename = table.keys()[0]
     worksheet.write("A" + str(start), tablename)
-    worksheet.write("A" + str(start+1), get_P(tablename)+u"表")
+    worksheet.write("A" + str(start+1), get_P(tablename))
     for row, culonm in enumerate(table[tablename]):
+        print culonm
         worksheet.write("B" + str(row + start), culonm[0])
-        worksheet.write("C" + str(row + start), culonm[3])
+        worksheet.write("C" + str(row + start), culonm[3].decode("utf8"))
         worksheet.write("D" + str(row + start), culonm[1])
         worksheet.write("E" + str(row + start), get_P(culonm[0]))
 

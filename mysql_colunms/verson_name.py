@@ -15,7 +15,7 @@ def push_P(name=""):
         dumps_Conf(conf=tem)
 
 
-def load_Conf(filename="verson.json"):
+def load_Conf(filename="verson2.json"):
     f = open(filename, "r")
     tem = "".join(f.readlines())
     T = json.loads(tem)
@@ -23,7 +23,7 @@ def load_Conf(filename="verson.json"):
     return T
 
 
-def dumps_Conf(filename="verson.json", conf={}):
+def dumps_Conf(filename="verson2.json", conf={}):
     f = open(filename, "w")
     f.write(json.dumps(conf))
     f.close()
@@ -32,5 +32,5 @@ def dumps_Conf(filename="verson.json", conf={}):
 if __name__ == "__main__":
     # dumps_Conf()
     print(load_Conf())
-    print(get_P("test1"))
-    push_P("test1")
+    print(get_P("logintime"))
+    push_P("logintime")
