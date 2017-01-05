@@ -23,7 +23,7 @@ def load_Conf(filename="verson2.json"):
     return T
 
 
-def dumps_Conf(filename="verson2.json", conf={}):
+def dumps_Conf(filename="verson.json", conf={}):
     f = open(filename, "w")
     f.write(json.dumps(conf))
     f.close()
