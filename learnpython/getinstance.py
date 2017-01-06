@@ -7,4 +7,5 @@ class A(object):
 
 
 if __name__ == '__main__':
-    a = getattr()
+    a = getattr(A, "saysome")
+    a
