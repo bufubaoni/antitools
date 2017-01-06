@@ -8,7 +8,7 @@ from verson_name import push_P
 
 class DbExportExcel(object):
     def __init__(self):
-        self.Alltables = getTableAndColumns("lms_test")
+        self.Alltables = getTableAndColumns("test1")
 
     def push_to_verson(self):
         for table in self.Alltables.keys():
@@ -27,5 +27,5 @@ class DbExportExcel(object):
 if __name__ == '__main__':
     inst = DbExportExcel()
     inst.push_to_verson()
-    inst.no_need_tables(tables=['Test', 'IdentifierCode', 'car_customer'])
+    inst.no_need_tables(tables=['test1'])
     inst.export_to_excel()
