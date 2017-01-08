@@ -10,8 +10,10 @@ class StandMixin(object):
     def stand(self):
         print "I can stand"
 
-class Man(RunableMixin,StandMixin):
+
+class Man(RunableMixin, StandMixin):
     pass
+
 
 if __name__ == "__main__":
     person = Man()
