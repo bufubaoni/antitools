@@ -4,10 +4,13 @@
 import xlsxwriter
 from verson_name import get_P
 
+from ConfPars import OUTPUT_EXCEL
+
+
 def workbookexcel(name="test"):
     def action(excel):
         def openexcel(*args, **kwargs):
-            workbook = xlsxwriter.Workbook(name + ".xlsx")
+            workbook = xlsxwriter.Workbook(name)
             worksheet = workbook.add_worksheet()
             result = excel(worksheet=worksheet, *args, **kwargs)
             workbook.close()
@@ -18,7 +21,7 @@ def workbookexcel(name="test"):
     return action
 
 
-@workbookexcel(name="test")
+@workbookexcel(name=OUTPUT_EXCEL)
 def writetoexcel(worksheet=None, tables=None):
     start = 1
     if isinstance(tables, dict):
@@ -31,7 +34,7 @@ def writetoexcel(worksheet=None, tables=None):
 def exporttable(worksheet=None, table=None, start=None):
     tablename = table.keys()[0]
     worksheet.write("A" + str(start), tablename)
-    worksheet.write("A" + str(start+1), get_P(tablename))
+    worksheet.write("A" + str(start + 1), get_P(tablename))
     for row, culonm in enumerate(table[tablename]):
         print culonm
         worksheet.write("B" + str(row + start), culonm[0])

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/11/30
 import json
+import os
 from ConfPars import VERSON_FILE_NAME
 
 def get_P(name=""):
@@ -16,10 +17,15 @@ def push_P(name=""):
 
 
 def load_Conf(filename=VERSON_FILE_NAME):
-    f = open(filename, "r")
-    tem = "".join(f.readlines())
-    T = json.loads(tem)
-    f.close()
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            tem = "".join(f.readlines())
+            if tem:
+                T = json.loads(tem)
+            else:
+                T = dict()
+    else:
+        T = dict()
     return T
 
 
