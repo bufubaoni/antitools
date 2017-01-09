@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/11/30
 from pydal import DAL, Field
-
-sys_tab = DAL("mysql://user:passwd@127.0.0.1/information_schema")
+from ConfPars import DB_URL
+sys_tab = DAL(DB_URL)
 
 sys_tab.define_table('COLUMNS',
                      Field("TABLE_SCHEMA", ),
