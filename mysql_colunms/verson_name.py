@@ -5,6 +5,7 @@ import json
 import os
 from ConfPars import VERSON_FILE_NAME
 
+
 def get_P(name=""):
     return load_Conf().get(name)
 
@@ -25,14 +26,16 @@ def load_Conf(filename=VERSON_FILE_NAME):
             else:
                 T = dict()
     else:
-        T = dict()
+        with open(filename, "w") as f:
+            T = dict()
+            f.write(json.dumps(T))
+
     return T
 
 
 def dumps_Conf(filename=VERSON_FILE_NAME, conf={}):
     with open(filename, "w") as f:
         f.write(json.dumps(conf))
-
 
 
 if __name__ == "__main__":
