@@ -10,7 +10,7 @@ from ConfPars import DATABASENAME, NO_NEED_TABLES
 class DbExportExcel(object):
     def __init__(self):
         self.Alltables = getTableAndColumns(DATABASENAME)
-        pass
+        print self.Alltables
 
     def push_to_verson(self):
         for table in self.Alltables.keys():

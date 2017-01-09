@@ -15,5 +15,5 @@ sys_tab.define_table('COLUMNS',
                      primarykey=[],
                      migrate=False)
 if __name__ == "__main__":
-    print sys_tab(sys_tab.COLUMNS.TABLE_SCHEMA == "test1").select()
-    print sys_tab._lastsql
+    print sys_tab(sys_tab.COLUMNS.TABLE_SCHEMA == "test").select()
+
