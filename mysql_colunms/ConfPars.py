@@ -7,3 +7,5 @@ conf = ConfigParser.ConfigParser()
 conf.readfp(open("init.conf"))
 
 DB_URL = conf.get("mysql", "url")
+
+VERSON_FILE_NAME = conf.get("versonfile","filename")

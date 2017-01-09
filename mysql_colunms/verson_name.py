@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/11/30
 import json
-
+from ConfPars import VERSON_FILE_NAME
 
 def get_P(name=""):
     return load_Conf().get(name)
@@ -15,7 +15,7 @@ def push_P(name=""):
         dumps_Conf(conf=tem)
 
 
-def load_Conf(filename="verson2.json"):
+def load_Conf(filename=VERSON_FILE_NAME):
     f = open(filename, "r")
     tem = "".join(f.readlines())
     T = json.loads(tem)
@@ -23,10 +23,10 @@ def load_Conf(filename="verson2.json"):
     return T
 
 
-def dumps_Conf(filename="verson.json", conf={}):
-    f = open(filename, "w")
-    f.write(json.dumps(conf))
-    f.close()
+def dumps_Conf(filename=VERSON_FILE_NAME, conf={}):
+    with open(filename, "w") as f:
+        f.write(json.dumps(conf))
+
 
 
 if __name__ == "__main__":
