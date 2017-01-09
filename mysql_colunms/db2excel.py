@@ -4,11 +4,12 @@
 from exportexcel import writetoexcel
 from info import getTableAndColumns
 from verson_name import push_P
+from ConfPars import DATABASENAME, NO_NEED_TABLES
 
 
 class DbExportExcel(object):
     def __init__(self):
-        self.Alltables = getTableAndColumns("lms_test")
+        self.Alltables = getTableAndColumns(DATABASENAME)
         pass
 
     def push_to_verson(self):
@@ -24,8 +25,9 @@ class DbExportExcel(object):
         for table in tables:
             self.Alltables.pop(table)
 
+
 if __name__ == '__main__':
     inst = DbExportExcel()
     inst.push_to_verson()
-    inst.no_need_tables(tables=['Test'])
+    inst.no_need_tables(tables=NO_NEED_TABLES)
     inst.export_to_excel()
