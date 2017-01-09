@@ -39,7 +39,6 @@ def dumps_Conf(filename=VERSON_FILE_NAME, conf={}):
 
 
 if __name__ == "__main__":
-    # dumps_Conf()
     print(load_Conf())
     print(get_P("logintime"))
     push_P("logintime")
