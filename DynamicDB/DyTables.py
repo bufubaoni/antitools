@@ -4,12 +4,15 @@
 from pydal import DAL, Field
 from AllTables import GetAllTables
 
+from TabaleSchema import datatype_mysql
+
 
 class DyTables(object):
     def __init__(self, uri=None):
         self._uri = uri
         self._schema = uri.split("/")[-1]
         self._dal = DAL(self._uri)
+        self._datatapy_dict = datatype_mysql()
         self.get_tables()
 
     def get_tables(self):
@@ -19,7 +22,7 @@ class DyTables(object):
         for numb, table in enumerate(_tables):
             fields = []
             for field in _tables.get(table):
-                fields.append(Field(field[0]))
+                fields.append(Field(field[0], self._datatapy_dict[field[1]]))
             self._dal.define_table(table, *fields, primarykey=[], migrate=False)
 
     def get_db(self):
