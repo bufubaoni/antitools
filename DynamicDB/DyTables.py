@@ -13,7 +13,9 @@ class DyTables(object):
         self.get_tables()
 
     def get_tables(self):
-        _tables = GetAllTables(schema=self._schema)
+        _tables = GetAllTables(uri="/".join(self._uri.split("/")[:-1])
+                                   + "/information_schema",
+                               schema=self._schema)
         for numb, table in enumerate(_tables):
             fields = []
             for field in _tables.get(table):
@@ -25,5 +27,5 @@ class DyTables(object):
 
 
 if __name__ == '__main__':
-    dtb = DyTables(uri='mysql://lms_test:lmsadmin@192.168.1.110/lms_test').get_db()
-    print dtb(dtb.car.id > 0).select()
+    dtb = DyTables(uri='mysql://cms:123456@192.168.1.110/gogs').get_db()
+    print dtb(dtb.access.id > 0).select()
