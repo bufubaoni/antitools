@@ -18,6 +18,3 @@ def GetAllTables(uri=None, schema=None):
     sys_tab.close()
     return tables
 
-
-if __name__ == '__main__':
-    print GetAllTables(schema="lms_test")
