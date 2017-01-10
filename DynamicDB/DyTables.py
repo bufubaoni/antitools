@@ -6,9 +6,9 @@ from AllTables import GetAllTables
 
 
 class DyTables(object):
-    def __init__(self,schema=None):
-        self._schema=schema
-        self._dal = DAL('mysql://lms_test:lmsadmin@192.168.1.110/'+self._schema)
+    def __init__(self, schema=None):
+        self._schema = schema
+        self._dal = DAL('mysql://lms_test:lmsadmin@192.168.1.110/' + self._schema)
         self.get_tables()
 
     def get_tables(self):
@@ -25,4 +25,4 @@ class DyTables(object):
 
 if __name__ == '__main__':
     dtb = DyTables(schema="lms_test").get_db()
-    print dtb(dtb.car.id>0).select()
+    print dtb(dtb.car.id > 0).select()
