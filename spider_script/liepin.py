@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2017/1/11
 from requests import Session
+import requests
 
 import md5
 
-passwd = "passwod"
+passwd = "passwd"
 username = "username"
 
 mpass = md5.new()
