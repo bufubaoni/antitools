@@ -22,7 +22,12 @@ class DyTables(object):
         for numb, table in enumerate(_tables):
             fields = []
             for field in _tables.get(table):
-                fields.append(Field(field[0], self._datatapy_dict[field[1]]))
+                try:
+                    fields.append(Field(field[0], self._datatapy_dict[field[1]]))
+                except SyntaxError:
+                    fields.append(Field("r_" + field[0],
+                                        self._datatapy_dict[field[1]],
+                                        rname=field[0]))
             self._dal.define_table(table, *fields, primarykey=[], migrate=False)
 
     def get_db(self):
