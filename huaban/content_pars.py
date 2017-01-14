@@ -10,6 +10,14 @@ logger = logging.getLogger("pars")
 
 
 def pars(content):
+    '''
+    splite content and find app board from html.
+
+    Returns app board json str
+
+    Args:
+        content: www.huaban.com format html
+    '''
     board = dict()
     logger.debug(content)
     content = content.split("\n")
@@ -22,6 +30,14 @@ def pars(content):
 
 
 def app_board(line):
+    """
+    find board line from html content
+
+    Returns app board str
+
+    Args:
+        line: content line
+    """
     if 'app.page["board"]' in line:
         logger.debug(line)
         return line
@@ -30,6 +46,14 @@ def app_board(line):
 
 
 def json_board(app_board_line):
+    """
+    from board json str convert dict
+
+    Returns app board dict
+
+    Args:
+        app_board_line:json str
+    """
     temp_board = "".join(app_board_line.split("=")[1:])
     logger.debug(temp_board.strip()[:-1])
     json_b = json.loads(temp_board.strip()[:-1])
