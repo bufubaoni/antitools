@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/12/29
 import json
-
+"""just a file but no use in this flow"""
 count = dict()
 
 url = "http://img.hb.aicdn.com/{key}_fw658.{ext}"
@@ -11,6 +11,14 @@ alla = []
 
 
 def find_dup(count):
+    '''
+    find the json file duplicate content
+
+    Returns app board all an no duplication content
+
+    Args:
+        count: content of file by spider crawing
+    '''
     with open("pins1.txt", "r") as f:
         while True:
             try:
