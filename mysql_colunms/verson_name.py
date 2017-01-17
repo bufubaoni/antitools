@@ -7,10 +7,18 @@ from ConfPars import VERSON_FILE_NAME
 
 
 def get_P(name=""):
+    """
+
+    :param name: get clunm's name or table's name
+    :return: labal local langage
+    """
     return load_Conf().get(name)
 
 
 def push_P(name=""):
+    """
+    :param name: clunm's name or table's name
+    """
     if not get_P(name):
         tem = load_Conf()
         tem[name] = name
@@ -18,6 +26,11 @@ def push_P(name=""):
 
 
 def load_Conf(filename=VERSON_FILE_NAME):
+    """
+
+    :param config the verbson filename:
+    :return: dict clunm's name and vobern's name
+    """
     if os.path.exists(filename):
         with open(filename, "r") as f:
             tem = "".join(f.readlines())
@@ -34,6 +47,11 @@ def load_Conf(filename=VERSON_FILE_NAME):
 
 
 def dumps_Conf(filename=VERSON_FILE_NAME, conf={}):
+    """
+
+    :param filename: conf dumps json file
+    :param conf: dict clunm's name and vobern's name
+    """
     with open(filename, "w") as f:
         f.write(json.dumps(conf))
 
