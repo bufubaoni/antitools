@@ -117,7 +117,7 @@ or you can modify the folder by yourself .
 export mysql custumer's table to excel with verson .
 need
 
-    pyday
+    pydal
     xlsxwriter
 
 it just to excel for simple
@@ -130,4 +130,10 @@ some base informtion for pro in work
     twisted is a logging server for this just easy for use
 
 this all
+
+13. huaban
+--------------------------------------------------------
+spider crawing huaban baord
+once get img src will message the celery .
+the celery queue will save the img
 
