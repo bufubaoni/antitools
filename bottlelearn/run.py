@@ -7,7 +7,8 @@ import subprocess
 import time
 import tempfile
 import threading, thread
-
+import pdb
+from bottle import Bottle
 _stdout, _stderr = sys.stdout.write, sys.stderr.write
 
 
@@ -93,14 +94,12 @@ class AppStack(list):
 
     def push(self, value=None):
         """ Add a new :class:`Bottle` instance to the stack """
-        # if not isinstance(value, Bottle):
-        #     value = Bottle()
+        if not isinstance(value, Bottle):
+            value = Bottle()
         self.append(value)
+        # pdb.set_trace()
         return value
 
-
-def default_app():
-    return AppStack()
 
 
 def load(target, **namespace):
@@ -146,11 +145,13 @@ class WSGIRefServer(ServerAdapter):
 
         class FixedHandler(WSGIRequestHandler):
             def address_string(self):  # Prevent reverse DNS lookups please.
+
                 return self.client_address[0]
 
             def log_request(*args, **kw):
                 if not self.quiet:
                     return WSGIRequestHandler.log_request(*args, **kw)
+
 
         handler_cls = self.options.get('handler_class', FixedHandler)
         server_cls = self.options.get('server_class', WSGIServer)
@@ -161,8 +162,11 @@ class WSGIRefServer(ServerAdapter):
                     address_family = socket.AF_INET6
 
         srv = make_server(self.host, self.port, app, server_cls, handler_cls)
+
         srv.serve_forever()
 
+app = default_app = AppStack()
+app.push()
 
 def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
         interval=1, reloader=False, quiet=False, plugins=None,
@@ -211,6 +215,7 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
     try:
         if debug is not None: _debug(debug)
         app = app or default_app()
+        pdb.set_trace()
         if isinstance(app, basestring):
             app = load_app(app)
         if not callable(app):
