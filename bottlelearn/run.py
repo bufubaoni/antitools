@@ -8,7 +8,8 @@ import time
 import tempfile
 import threading, thread
 import pdb
-from bottle import Bottle
+from bottle import Bottle,AppStack
+from bottle import default_app
 _stdout, _stderr = sys.stdout.write, sys.stderr.write
 
 
@@ -85,23 +86,25 @@ class FileCheckerThread(threading.Thread):
         return exc_type is not None and issubclass(exc_type, KeyboardInterrupt)
 
 
-class AppStack(list):
-    """ A stack-like list. Calling it returns the head of the stack. """
+# class AppStack(list):
+#     """ A stack-like list. Calling it returns the head of the stack. """
+#
+#     def __call__(self):
+#         """ Return the current default application. """
+#         return self[-1]
+#
+#     def push(self, value=None):
+#         """ Add a new :class:`Bottle` instance to the stack """
+#         if not isinstance(value, Bottle):
+#             value = Bottle()
+#         self.append(value)
+#         # pdb.set_trace()
+#         return value
 
-    def __call__(self):
-        """ Return the current default application. """
-        return self[-1]
-
-    def push(self, value=None):
-        """ Add a new :class:`Bottle` instance to the stack """
-        if not isinstance(value, Bottle):
-            value = Bottle()
-        self.append(value)
-        # pdb.set_trace()
-        return value
-
-
-
+# app = default_app = AppStack()
+# app.push()
+# print type(app)
+# pdb.set_trace()
 def load(target, **namespace):
     """ Import a module or fetch an object from a module.
 
@@ -126,8 +129,7 @@ def load_app(target):
     """ Load a bottle application from a module and make sure that the import
         does not affect the current default application, but returns a separate
         application object. See :func:`load` for the target parameter. """
-    global NORUN;
-    NORUN, nr_old = True, NORUN
+    global NORUN;NORUN, nr_old = True, NORUN
     try:
         tmp = default_app.push()  # Create a new "default application"
         rv = load(target)  # Import the target module
@@ -165,28 +167,11 @@ class WSGIRefServer(ServerAdapter):
 
         srv.serve_forever()
 
-app = default_app = AppStack()
-app.push()
+
 
 def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
         interval=1, reloader=False, quiet=False, plugins=None,
         debug=None, **kargs):
-    """ Start a server instance. This method blocks until the server terminates.
-
-        :param app: WSGI application or target string supported by
-               :func:`load_app`. (default: :func:`default_app`)
-        :param server: Server adapter to use. See :data:`server_names` keys
-               for valid names or pass a :class:`ServerAdapter` subclass.
-               (default: `wsgiref`)
-        :param host: Server address to bind to. Pass ``0.0.0.0`` to listens on
-               all interfaces including the external one. (default: 127.0.0.1)
-        :param port: Server port to bind to. Values below 1024 require root
-               privileges. (default: 8080)
-        :param reloader: Start auto-reloading server? (default: False)
-        :param interval: Auto-reloader interval in seconds (default: 1)
-        :param quiet: Suppress output to stdout and stderr? (default: False)
-        :param options: Options passed to the server adapter.
-     """
     if NORUN: return
     if reloader and not os.environ.get('BOTTLE_CHILD'):
         try:
@@ -213,9 +198,11 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
         return
 
     try:
-        if debug is not None: _debug(debug)
+        # if debug is not None: _debug(debug)
+        # pdb.set_trace()
         app = app or default_app()
-        pdb.set_trace()
+        print app.router.__dict__["builder"]
+        # pdb.set_trace()
         if isinstance(app, basestring):
             app = load_app(app)
         if not callable(app):
@@ -224,7 +211,6 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
         for plugin in plugins or []:
             app.install(plugin)
         server = WSGIRefServer
-
         server = server(host=host, port=port, **kargs)
 
         server.quiet = server.quiet or quiet
@@ -241,6 +227,7 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
             if bgcheck.status == 'reload':
                 sys.exit(3)
         else:
+            # pdb.set_trace()
             server.run(app)
     except KeyboardInterrupt:
         pass
@@ -253,3 +240,6 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
             pass
         time.sleep(interval)
         sys.exit(3)
+
+app = default_app = AppStack()
+app.push()
