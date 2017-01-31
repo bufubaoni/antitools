@@ -8,7 +8,7 @@ import time
 import tempfile
 import threading, thread
 import pdb
-from bottle import Bottle,AppStack
+from bottle import Bottle, AppStack,_ImportRedirect
 from bottle import default_app
 _stdout, _stderr = sys.stdout.write, sys.stderr.write
 
@@ -86,25 +86,6 @@ class FileCheckerThread(threading.Thread):
         return exc_type is not None and issubclass(exc_type, KeyboardInterrupt)
 
 
-# class AppStack(list):
-#     """ A stack-like list. Calling it returns the head of the stack. """
-#
-#     def __call__(self):
-#         """ Return the current default application. """
-#         return self[-1]
-#
-#     def push(self, value=None):
-#         """ Add a new :class:`Bottle` instance to the stack """
-#         if not isinstance(value, Bottle):
-#             value = Bottle()
-#         self.append(value)
-#         # pdb.set_trace()
-#         return value
-
-# app = default_app = AppStack()
-# app.push()
-# print type(app)
-# pdb.set_trace()
 def load(target, **namespace):
     """ Import a module or fetch an object from a module.
 
@@ -133,6 +114,7 @@ def load_app(target):
     try:
         tmp = default_app.push()  # Create a new "default application"
         rv = load(target)  # Import the target module
+        pdb.set_trace()
         return rv if callable(rv) else tmp
     finally:
         default_app.remove(tmp)  # Remove the temporary added default application
@@ -200,7 +182,7 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
     try:
         # if debug is not None: _debug(debug)
         # pdb.set_trace()
-        app = app or default_app()
+        app = app
         print app.router.__dict__["builder"]
         # pdb.set_trace()
         if isinstance(app, basestring):
@@ -241,5 +223,7 @@ def run(app=None, server='wsgiref', host='127.0.0.1', port=8080,
         time.sleep(interval)
         sys.exit(3)
 
-app = default_app = AppStack()
-app.push()
+# app = default_app = AppStack()
+# app.push()
+#
+# ext = _ImportRedirect('bottle.ext' if __name__ == '__main__' else __name__+".ext", 'bottle_%s').module
