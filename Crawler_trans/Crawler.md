@@ -22,7 +22,7 @@
 ## 旧方法
 如何实现爬虫并发。一般来说，我们将建立一个线程池。每一个线程都会t哦那个过socket下载一个页面，例如我们下载一个页面从*xkcd.com*。
 
-'''python
+```python
 def fetch(url):
     sock = socket.socket()
     sock.connect(('xkcd.com', 80))
@@ -37,4 +37,6 @@ def fetch(url):
     # Page is now downloaded.
     links = parse_links(response)
     q.add(links)
-'''
+```
+通常，socket 的操作为空，当线程调用方法 *connect* 或者 *recv*,会暂停直到操作完成。为了一次下载多个页面，我们需要多线程。
+一个复杂的应用通过将空闲的线程保留在线程池中，然后再对其复用，来降低线程创建的消耗，socket同样适用连接池。
