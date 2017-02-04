@@ -20,3 +20,21 @@
 我们可以同时下载许多页面来加速这个过程。一旦爬虫爬取了新的连接，他会单独的使用socket获取新页面提取其中内容，当此相应完成后则开始解析，并添加新的连接给请求队列。可能会出现无响应的情况当，在高并发中会降低性能，因此我们应当降低并发的数量，并将其余链接保留在队列中，直到之前的请求完成。
 
 ## 旧方法
+如何实现爬虫并发。一般来说，我们将建立一个线程池。每一个线程都会t哦那个过socket下载一个页面，例如我们下载一个页面从*xkcd.com*。
+
+'''python
+def fetch(url):
+    sock = socket.socket()
+    sock.connect(('xkcd.com', 80))
+    request = 'GET {} HTTP/1.0\r\nHost: xkcd.com\r\n\r\n'.format(url)
+    sock.send(request.encode('ascii'))
+    response = b''
+    chunk = sock.recv(4096)
+    while chunk:
+        response += chunk
+        chunk = sock.recv(4096)
+
+    # Page is now downloaded.
+    links = parse_links(response)
+    q.add(links)
+'''
