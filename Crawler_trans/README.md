@@ -41,4 +41,14 @@ def fetch(url):
 通常，socket 的操作为空，当线程调用方法 *connect* 或者 *recv*,会暂停直到操作完成。为了一次下载多个页面，我们需要多线程。
 一个复杂的应用通过将空闲的线程保留在线程池中，然后再对其复用，来降低线程创建的消耗，socket同样适用连接池。
 
-当然，线程
+当然，线程的代价是昂贵的，并且操作系统对进程，用户，和机器有着各种各样的限制。在Jesse's 的系统，一个py的线程将占用50k的内存，启用1w以上的线程将导致程序的失败。如果我们并发的操作数以万计的socket，我们就将耗尽线程。每个线程的开销或者系统对线程的限制都将是瓶颈。
+
+在他的文章的一开始["The C10K problem"](http://aosabook.org/en/500L/a-web-crawler-with-asyncio-coroutines.html#fn3)中，Dan Kegel 他阐述了多线程的i/o的局限性。
+> It's time for web servers to handle ten thousand clients simultaneously, don't you think? After all, the web is a big place now.
+
+> 这是一个并发万计的时代，你不认为吗？因为web大有可为。
+
+Kegel 创建了 "C10K" 在1999年。万计的连接听上去很不错，问题的改变只是量上的而非质变。回到之前，使用线程每个链接对于C10K都是不切实际的。现在的容器更为高级。确实，我们的爬虫可以使用线程工作的很好。但是面对巨大规模的应用，例如十万级别的连接，面对的问题仍然是，它的规模超过了大多数的系统可以创建的socket，如果不使用多线程，将如何实现呢？
+
+
+
