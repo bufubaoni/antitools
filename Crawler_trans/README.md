@@ -50,5 +50,34 @@ def fetch(url):
 
 Kegel 创建了 "C10K" 在1999年。万计的连接听上去很不错，问题的改变只是量上的而非质变。回到之前，使用线程每个链接对于C10K都是不切实际的。现在的容器更为高级。确实，我们的爬虫可以使用线程工作的很好。但是面对巨大规模的应用，例如十万级别的连接，面对的问题仍然是，它的规模超过了大多数的系统可以创建的socket，如果不使用多线程，将如何实现呢？
 
+## 异步
 
+异步i/o框架在一个单线程上使用非阻塞socket并行执行。使用异步爬虫，我们在使用socket连接服务之前，设置其为非阻塞：
+```python
+sock = socket.socket()
+sock.setblocking(False)
+try:
+    sock.connect(('xkcd.com', 80))
+except BlockingIOError:
+    pass
+```
+一个非阻塞的socket当*connect*的时候会触发异常，这个异常只是重现底层c的一个方法，这个方法将*errno*设置为*EINPROGRESS*告知方法开始。
+
+所以说爬虫应当知道连接何时开始，以发送http 请求，我们使用一个简单的循环来发送请求：
+```python
+request = 'GET {} HTTP/1.0\r\nHost: xkcd.com\r\n\r\n'.format(url)
+encoded = request.encode('ascii')
+
+while True:
+    try:
+        sock.send(encoded)
+        break  # Done.
+    except OSError as e:
+        pass
+
+print('sent')
+```
+当前方法不仅仅是费电，而且也不能有效的调度的多个socket，在最早的时候，BSD Uinx 的解决方法是*select*,C 方法等待非阻塞socket或者socket的数组。当代的互联网需求面对的是大量的连接应运而生的是如 *poll*,如bsd上的*kqueue*,linux上的*epoll*。这些api和*select*类似，但是解决的更大的连接数。
+
+py3.4的 *DefaultSelector*
 
