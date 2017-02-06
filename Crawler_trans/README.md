@@ -53,6 +53,7 @@ Kegel 创建了 "C10K" 在1999年。万计的连接听上去很不错，问题�
 ## 异步
 
 异步i/o框架在一个单线程上使用非阻塞socket并行执行。使用异步爬虫，我们在使用socket连接服务之前，设置其为非阻塞：
+
 ```python
 sock = socket.socket()
 sock.setblocking(False)
@@ -64,6 +65,7 @@ except BlockingIOError:
 一个非阻塞的socket当*connect*的时候会触发异常，这个异常只是重现底层c的一个方法，这个方法将*errno*设置为*EINPROGRESS*告知方法开始。
 
 所以说爬虫应当知道连接何时开始，以发送http 请求，我们使用一个简单的循环来发送请求：
+
 ```python
 request = 'GET {} HTTP/1.0\r\nHost: xkcd.com\r\n\r\n'.format(url)
 encoded = request.encode('ascii')
@@ -80,6 +82,7 @@ print('sent')
 当前方法不仅仅是费电，而且也不能有效的调度的多个socket，在最早的时候，BSD Uinx 的解决方法是*select*,C 方法等待非阻塞socket或者socket的数组。当代的互联网需求面对的是大量的连接应运而生的是如 *poll*,如bsd上的*kqueue*,linux上的*epoll*。这些api和*select*类似，但是解决的更大的连接数。
 
 py3.4的 `DefaultSelector`使用更好的如`select`的方法在系统上。为了注册一个i/o相关的网络通知，我们创建一个非阻塞socket使用默认*select*注册。
+
 ```python
 from selectors import DefaultSelector, EVENT_WRITE
 
@@ -100,6 +103,7 @@ selector.register(sock.fileno(), EVENT_WRITE, connected)
 ```
 
 我们忽略错误需要调用`selector.register`，传递socket的文件描述符和一个常量，来表示我们的等待事件。在连接开始时我们设置`EVENT_WRITE`:我们想知道什么时候socket是可读的，我们仍旧使用`connected`方法，当事件运行的时候调用的方法我们称之为回调函数。
+
 ```python
 def loop():
     while True:
@@ -111,6 +115,62 @@ def loop():
 `callback`回调函数存储的是`event_key.data`，一旦监测到非阻塞socket连接的时候就会执行。
 不同于第一次实现的循环，调用`select`暂停，等待下一个i/o事件。然后循环等待这些事件轮询执行。
 尚未完成的操作将始终保持挂起，直到某个时间循环执行。
+
 我们将演示什么，我们将展示当操作完成后如何操作和执行回掉函数，一个异步框架建立在我们展示的两个功能之上-非阻塞socket和事件循环-在单线程上运行并发操作。
+
 我们在这里实现了“并发”，但是并非传统意义上的“并行”。我们建立了一个小型的重叠的i/o系统，当其他操作还在执行的时候可以开启一个新的操作。他并不是利用多核执行并行计算。但是这个系统是为了解决i/o绑定问题的，而不是cpu限制的。
+
 所以我们这个事件循环对于并发i/o更为有效率，因为他不会每个链接都占用线程资源。但是在我们继续之前，重要的是纠正一个常见的错误-异步快于多线程。通常并非如此，的确在py中象我们这样的事件事件在少量的非常活跃的服务连接是慢于多线程的，在没有全局解释器所的情况下，线程能够在这样的工作负载下表现的很好。如果应用的瓶颈在于阻塞和休眠的连接，这样情况下，异步i/o是相当正确的。
+
+## 回调函数
+我们已经构建了可运行的异步框架，接下来建立web爬虫。一个简单的url提取器写起来也是很痛苦的
+
+我们从设置一个没有爬取的全局url集合开始，和一个已经爬取的集合。
+
+```python
+urls_todo = set(['/'])
+seen_urls = set(['/'])
+```
+`seen_urls`包含`urls_todo`加上完整的url。这两个集合初始化自根url“/”
+
+提取页面内容需要一些列的回掉函数。当socket连接后`connected`将被调用，然后向服务器发送一个 GET 请求。但是它必须等待 响应。如果，回调触发的时候，不能读取完整的响应，它将再次触发，知道读取所有的内容。
+
+我们集中这些回调函数到`Fetch`object中。它需要一个 url，一个socket，和一个字节型的缓存区。
+
+```python
+class Fetcher:
+    def __init__(self, url):
+        self.response = b''  # Empty array of bytes.
+        self.url = url
+        self.sock = None
+```
+从调用 `Fetcher.fetch`开始：
+
+```python
+    # Method on Fetcher class.
+    def fetch(self):
+        self.sock = socket.socket()
+        self.sock.setblocking(False)
+        try:
+            self.sock.connect(('xkcd.com', 80))
+        except BlockingIOError:
+            pass
+
+        # Register next callback.
+        selector.register(self.sock.fileno(),
+                          EVENT_WRITE,
+                          self.connected)
+```
+`fetch` 方法开始连接一个socket，但是应当在通讯前通知。它必须返回一个事件循环的控制器来等待连接。为了便于理解，想象一个整个应用是这个样子的：
+
+```python
+# Begin fetching http://xkcd.com/353/
+fetcher = Fetcher('/353/')
+fetcher.fetch()
+
+while True:
+    events = selector.select()
+    for event_key, event_mask in events:
+        callback = event_key.data
+        callback(event_key, event_mask)
+```
