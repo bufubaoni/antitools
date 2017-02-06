@@ -79,7 +79,7 @@ print('sent')
 ```
 当前方法不仅仅是费电，而且也不能有效的调度的多个socket，在最早的时候，BSD Uinx 的解决方法是*select*,C 方法等待非阻塞socket或者socket的数组。当代的互联网需求面对的是大量的连接应运而生的是如 *poll*,如bsd上的*kqueue*,linux上的*epoll*。这些api和*select*类似，但是解决的更大的连接数。
 
-py3.4的 *DefaultSelector*使用更好的如*select*的方法在系统上。为了注册一个i/o相关的网络通知，我们创建一个非阻塞socket使用默认*select*注册。
+py3.4的 `DefaultSelector`使用更好的如`select`的方法在系统上。为了注册一个i/o相关的网络通知，我们创建一个非阻塞socket使用默认*select*注册。
 ```python
 from selectors import DefaultSelector, EVENT_WRITE
 
@@ -99,3 +99,4 @@ def connected():
 selector.register(sock.fileno(), EVENT_WRITE, connected)
 ```
 
+我们忽略错误需要调用`selector.register`，
