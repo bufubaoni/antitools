@@ -10,8 +10,9 @@
 
 var home_entry = $("div.HomeEntry,div#zh-home-list-title");
 home_entry.css("display","none");
-
-
+var body_content = $("div.zg-wrap.zu-main.clearfix ")
+body_content.css("padding-top","5px")
+$("body").css("overflow","hidden");
 var content_html = $("div[role='main']");
 content_html.css("width","100%");
 
@@ -22,14 +23,17 @@ question_list.css("display","none");
 
 var zh_main_content = $("div.zu-main-content>div.zu-main-content-inner");
 zh_main_content.css("margin-right","900px");
-// zh_main_content.css("margin-right","900px");
 
 $(window).off("scroll");
 zh_main_content.css("overflow-y","auto");
+zh_main_content.css("height",$(window).height()+"px");
 
 var zh_right_bar = $("div.zu-main-sidebar");
 zh_right_bar.css("margin-left","-870px");
 zh_right_bar.css("width","870px");
+zh_right_bar.css("height",$(window).height()+"px");
+zh_right_bar.css("overflow-y","auto");
+
 zh_right_bar.empty();
 
 $(document).ajaxSuccess(function() {
