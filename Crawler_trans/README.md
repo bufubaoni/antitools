@@ -174,3 +174,20 @@ while True:
         callback = event_key.data
         callback(event_key, event_mask)
 ```
+所有的事件通知在进程调用`select`时候调用，因此`fetch`必须手动控制时间循环，以便知道socket合适连接。只有这样循环中才能执行上边`fetch`结尾处注册的回调函数。
+
+下面是`connected`的实现
+
+```python
+# Method on Fetcher class.
+def connected(self, key, mask):
+    print('connected!')
+    selector.unregister(key.fd)
+    request = 'GET {} HTTP/1.0\r\nHost: xkcd.com\r\n\r\n'.format(self.url)
+    self.sock.send(request.encode('ascii'))
+
+    # Register the next callback.
+    selector.register(key.fd,
+                        EVENT_READ,
+                        self.read_response)
+```
