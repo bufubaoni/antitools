@@ -191,3 +191,69 @@ def connected(self, key, mask):
                         EVENT_READ,
                         self.read_response)
 ```
+这个方法发送一个`GET`请求。真正的应用会监测`send`的返回值一方整个信息不能立即发送。以为我们的请求和应用都很小。当调用`send`方法的时候，等待响应。当然，他必须注册另一个回调，并放弃对事件循环的控制。下一个和最后一个回调，`read_response`处理服务器的回复：
+
+```python
+    # Method on Fetcher class.
+    def read_response(self, key, mask):
+        global stopped
+
+        chunk = self.sock.recv(4096)  # 4k chunk size.
+        if chunk:
+            self.response += chunk
+        else:
+            selector.unregister(key.fd)  # Done reading.
+            links = self.parse_links()
+
+            # Python set-logic:
+            for link in links.difference(seen_urls):
+                urls_todo.add(link)
+                Fetcher(link).fetch()  # <- New Fetcher.
+
+            seen_urls.update(links)
+            urls_todo.remove(self.url)
+            if not urls_todo:
+                stopped = True
+```
+selector监测socket为"readable"时回调函数将被执行，这意味着两件事情，socket已经有了数据或者socket已经关闭。
+
+回掉将会请求4kb的数据。如果比读取的少，`chunk`包括所有的数据，如果多余这些数据，`chunk`将回事4kb的数据，然后socket仍然可读，事件循环将会在下一个tick时再一次执行回调。当响应完成，服务器将会关闭socket然后`chunk`清空。
+
+`parse_links`方法，未列出，返回url的集合。我们没有上限的为每一个新的url开启一个抓取器。注意一个优点异步回调：我们不需要围绕共享数据而互斥，例如当我们添加向`seen_urls`集合中添加数据的时候。不会有多任务的抢占，这种模式下我们不能在自己的代码任意位置被打断。
+
+我们添加全局方法`stopped`变量，并控制循环。
+
+```python
+stopped = False
+
+def loop():
+    while not stopped:
+        events = selector.select()
+        for event_key, event_mask in events:
+            callback = event_key.data
+            callback()
+```
+
+一旦所有的页面都抓取完毕，那么嗅探器捡回停止所有的全局循环，并退出程序
+
+这个简单的实例提现了异步代码的维护困难。我们需要一定的途径来表现一系列的计算和i/o操作，和调度多个这样的操作并发运行。但是除了多线程之外，一系列的操作无法被收集到单个函数：然而一个方法开始一个i/o 操作，它将明确的保存未来的状态，如果他又返回值。请自己思考并编写这个节省状态的代码。
+
+解释一下为什么做这些，思考一下我们怎么在一个阻塞线程获取url
+
+```python
+# Blocking version.
+def fetch(url):
+    sock = socket.socket()
+    sock.connect(('xkcd.com', 80))
+    request = 'GET {} HTTP/1.0\r\nHost: xkcd.com\r\n\r\n'.format(url)
+    sock.send(request.encode('ascii'))
+    response = b''
+    chunk = sock.recv(4096)
+    while chunk:
+        response += chunk
+        chunk = sock.recv(4096)
+
+    # Page is now downloaded.
+    links = parse_links(response)
+    q.add(links)
+```
