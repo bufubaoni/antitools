@@ -257,3 +257,29 @@ def fetch(url):
     links = parse_links(response)
     q.add(links)
 ```
+
+这个函数将记录两个socket的操作间的状态。当一个url发送socket的时候相应。当函数在线程上运行时使用语言的最基本的局部变量来存储临时状态在栈中。函数当然有一个 "continuation",代码计划在i/o完成后执行的代码。运行时通过存储线程的指令指针保存运行状态。你不必考虑回复这些局部变量和i/o的后续。踏实语言内置的。
+
+但是在基于回调的异步框架中，这些语言特性是没有帮助的。当等待i/o的时候，这个函数必须明确存储他自己的状态，因为函数在i/o完成之前会丢失他的堆栈帧。为了代替局部变量，我们的基于回掉的例子将存储 `sock`和`response`作为 `self`的`attributes`,在`Fetcher`的实例中，代替指令指针，它通过注册链接的回调和`read_response`来存储接下来的流程。随着应用规模的增长，我们在回回调中手动保存的状态的复杂性也在增加。这样的繁重的记录使得编程工作很头痛。
+
+更甚，当回掉发生错误抛出异常，在它和下一个回掉发生之间？也就是我们的`parse_links` 方法他抛出异常如下：
+
+```python
+Traceback (most recent call last):
+  File "loop-with-callbacks.py", line 111, in <module>
+    loop()
+  File "loop-with-callbacks.py", line 106, in loop
+    callback(event_key, event_mask)
+  File "loop-with-callbacks.py", line 51, in read_response
+    links = self.parse_links()
+  File "loop-with-callbacks.py", line 67, in parse_links
+    raise Exception('parse error')
+Exception: parse error
+```
+
+堆栈信息仅仅显示时间循环运行了回掉。并没有记录什么导致的异常。当异常抛出的时候有两件事情发生了，我们没有记录异常，导致我们从哪里来到哪里去都丢失了，这种上下文的丢失叫做"stack ripping"(堆栈翻录)，并且许多情况下他混淆了程序员。"stack ripping" 还阻止为我们为回掉函数安装异常处理程序，如"try except" 块来包装回掉函数和他以及其后代树
+
+因此除了关于多线程和异步的相对效率的长期争论意外还有另一个争论是更容易犯错的：如果你错误的同步他们，线程就容易受到数据竞争，但是回调时由于"stack ripping"的存在而调试受限。
+
+
+## 协程
