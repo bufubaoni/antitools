@@ -381,7 +381,63 @@ True
 <class 'generator'>
 ```
 python 生成器封装了在栈上加上代码的引用，`gen_fn`的主体：
+
 ```python
 >>> gen.gi_code.co_name
 'gen_fn'
 ```
+从`gen_fn`调用的所有生成器都指向相同的代码。但是每个都有自己的堆栈帧。这个对战帧不存在于任何实际的堆栈，它只是等待调用：
+
+![generators](http://aosabook.org/en/500L/crawler-images/generator.png)
+
+该帧拥有"last instruction"指针（最后指令），它表示最近执行的命令。初始值为-1，表示生成器尚未开始：
+
+```python
+>>> gen.gi_frame.f_lasti
+-1
+```
+
+当我们调用`send`,生成器到达第一个`yield`,然后暂停。`send`的返回值为 1 ，因为传递给`gen`的是一个`yield`表达式。
+
+```python
+>>> gen.send(None)
+1
+```
+从开始计算（生成器）生成器的指令为3字节，部分通过编译的python代码为56字节：
+
+```python
+>>> gen.gi_frame.f_lasti
+3
+>>> len(gen.gi_code.co_code)
+56
+```
+生成器可以在任何时候从任何函数回复，因为他的堆栈帧在堆上，而非栈上。它在调用层次结构中的位置不是固定的，并且不遵循常规函数的先进先出顺序。它是自由的，无束缚的。
+
+我们可以给生成器发送"hello"然后它将返回`yield`表达式，生成器会继续执行，直到 `yield 2`:
+
+```python
+>>> gen.send('hello')
+result of yield: hello
+2
+```
+现在栈上信息包括局部变量`result`:
+
+```python
+>>> gen.gi_frame.f_locals
+{'result': 'hello'}
+```
+从`gen_fn`创建的其他的生成器将有自己的堆栈帧和局部变量。
+
+当我们再次调用`send`的时候，生成器继续从他的第二个`yield`,完成之后会抛出`StopIteration`异常。
+
+```python
+>>> gen.send('goodbye')
+result of 2nd yield: goodbye
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+StopIteration: done
+```
+这个异常会有一个返回值"done".
+
+## 使用生成器建立协程
+
