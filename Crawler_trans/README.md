@@ -283,3 +283,105 @@ Exception: parse error
 
 
 ## 协程
+一个诱人的承诺，可以编写异步代码，将毁掉的效率与传统的多线程结合起来。这种组合称谓`coroutines`协程，使用py3.4的标准的 asyncio 库和一个 "aiohttp"的包，在协程中直接获取url。
+
+```python
+    @asyncio.coroutine
+    def fetch(self, url):
+        response = yield from self.session.get(url)
+        body = yield from response.read()
+```
+他也是可扩展的，对比与50k的线程消耗的内存和操作系统对线程的限制，一个py的协程任务在 Jesse 的系统上只占用3k的内存。python 可以轻松的开启数十万的协程。
+
+协程的概念，可以追溯到计算机科学的起初，很简单：他是一个可以暂停和恢复的子程序。而线程是由操作系统抢占式多任务，协同是多任务协作：他们选择何时停止，以及何时运行下一个。
+
+有很多协程的实现，即使在py中也有好几个。py3中有一个标准"asyncio"库中协程是基于generators，Future 类和"yield from"语句构建的。从py3.5开始协程作为语言的本身的属性，然而，了解协程，因为他们第一次在py3.4 中实现，使用预先存在的语言工具，是解决py3.5 本地协程的基础。
+
+为了解释py3.4 的基于 generators 协程，我们将介绍一些 generators 和如何在 asyncio 中使用协程，我相信你会喜欢阅读他，就像我们喜欢它一样。一旦我们解释基于 generators的协程程序，我们将在异步web 爬虫中使用它们。
+
+## Python 的 Generators 如何工作
+在你掌握 Generator 之前，你必须了解一般情况下python的函数的工作原理。通常，当py函数调用子进程的时候，子例程保留控制，知道返回或者抛出异常，然后控制权交还给调用者：
+
+```python
+>>> def foo():
+...     bar()
+...
+>>> def bar():
+...     pass
+```
+
+python 官方解释器是用C来写的。执行py函数的c函数被称之为 mellifluously,`PyEval_EvalFrameEx`。它需要一个python的栈框架对象，并在框架的上下文中评估py的字节码。这里是`foo`的字节码：
+
+```python
+>>> import dis
+>>> dis.dis(foo)
+  2           0 LOAD_GLOBAL              0 (bar)
+              3 CALL_FUNCTION            0 (0 positional, 0 keyword pair)
+              6 POP_TOP
+              7 LOAD_CONST               0 (None)
+             10 RETURN_VALUE
+```
+
+`foo`在调用`bar`函数的时候压入函数栈，然后从栈上弹出它的返回值，将 `None`压栈，然后返回`None`。
+
+当 `PyEval_EvalFrameEx` 遇到`CALL_FUNCTION`字节码的时候，他创建一个新的py栈框架和资源：它调用`PyEval_EvalFrameEx`并使用新的资源，这些资源将被用来执行`bar`
+
+了解py堆栈帧在堆内存的分配是很重要的！py的解释器是一个正常的c程序，所以他的堆栈也是正常的堆栈帧。但py操作堆栈帧是在堆上。除此之外，这意味着py的堆栈帧可以超越其函数调用。要以交互的方式查看，请从`bar`内部保存当前帧：
+
+```python
+>>> import inspect
+>>> frame = None
+>>> def foo():
+...     bar()
+...
+>>> def bar():
+...     global frame
+...     frame = inspect.currentframe()
+...
+>>> foo()
+>>> # The frame was executing the code for 'bar'.
+>>> frame.f_code.co_name
+'bar'
+>>> # Its back pointer refers to the frame for 'foo'.
+>>> caller_frame = frame.f_back
+>>> caller_frame.f_code.co_name
+'foo'
+```
+
+![img](http://aosabook.org/en/500L/crawler-images/function-calls.png)
+
+该功能现在设置为py的 generators ，使用相同的构建块-代码兑现和堆栈帧-达到特殊效果。
+
+下面是生成器的函数：
+
+```python
+>>> def gen_fn():
+...     result = yield 1
+...     print('result of yield: {}'.format(result))
+...     result2 = yield 2
+...     print('result of 2nd yield: {}'.format(result2))
+...     return 'done'
+...  
+```
+
+当py完成`gen_fn`字节码，它执行到`yield`语句然后得知`gen_fn`是一个生成函数，并不是一般的函数。他在内存重打下标志：
+
+```python
+>>> # The generator flag is bit position 5.
+>>> generator_bit = 1 << 5
+>>> bool(gen_fn.__code__.co_flags & generator_bit)
+True
+```
+
+当调用生成函数的时候，python将会看到生成器标志，他并不返回一个函数，而是创建一个生成器：
+
+```python
+>>> gen = gen_fn()
+>>> type(gen)
+<class 'generator'>
+```
+python 生成器封装了在栈上加上代码的引用，`gen_fn`的主体：
+```python
+>>> gen.gi_code.co_name
+'gen_fn'
+```
