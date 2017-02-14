@@ -440,4 +440,94 @@ StopIteration: done
 这个异常会有一个返回值"done".
 
 ## 使用生成器建立协程
+因此生成器可以停止，并且可以使用恢复值，并且它具有返回值。听起来很适合构建异步编程模型，没有意大利面条一样的回调！我们想构建一个"协程"：一个在程序中和其他程序合作（scheduled）的程序。我们的协程将是python的标准库"asyncio"的简化版本。在asyncio我们将使用 generator, futures 和"yield from"语句。
 
+首先我们需要一种表示协程正在等待结果的方法。精简版本：
+
+```python
+class Future:
+    def __init__(self):
+        self.result = None
+        self._callbacks = []
+
+    def add_done_callback(self, fn):
+        self._callbacks.append(fn)
+
+    def set_result(self, result):
+        self.result = result
+        for fn in self._callbacks:
+            fn(self)
+```
+
+future事例的初始化为待定，它通过`set_result`来"解析".
+
+```python
+class Fetcher:
+    def fetch(self):
+        self.sock = socket.socket()
+        self.sock.setblocking(False)
+        try:
+            self.sock.connect(('xkcd.com', 80))
+        except BlockingIOError:
+            pass
+        selector.register(self.sock.fileno(),
+                          EVENT_WRITE,
+                          self.connected)
+
+    def connected(self, key, mask):
+        print('connected!')
+        # And so on....
+```
+
+`fetch`首先连接socket，然后注册了一个回调，`connected`,当socket连接时执行。现在我们可以在一个协程中结合此两步：
+```python
+    def fetch(self):
+        sock = socket.socket()
+        sock.setblocking(False)
+        try:
+            sock.connect(('xkcd.com', 80))
+        except BlockingIOError:
+            pass
+
+        f = Future()
+
+        def on_connected():
+            f.set_result(None)
+
+        selector.register(sock.fileno(),
+                          EVENT_WRITE,
+                          on_connected)
+        yield f
+        selector.unregister(sock.fileno())
+        print('connected!')
+```
+`fetch`是一个生成函数，而不是一个常规的函数，因为他包含`yield`语句。我们创建一个等待的future,yield 会暂停`fetch`直到socket准备完毕。内函数`on_connected`会解析 future.
+
+但是当 future解析完成后，如何恢复生成器呢？我们需要一个协程 驱动。让我们叫他"task":
+
+```python
+class Task:
+    def __init__(self, coro):
+        self.coro = coro
+        f = Future()
+        f.set_result(None)
+        self.step(f)
+
+    def step(self, future):
+        try:
+            next_future = self.coro.send(future.result)
+        except StopIteration:
+            return
+
+        next_future.add_done_callback(self.step)
+
+# Begin fetching http://xkcd.com/353/
+fetcher = Fetcher('/353/')
+Task(fetcher.fetch())
+
+loop()
+```
+
+task 通过`fetch`会发送`None`来启动生成器，`fetch`会运行到yields，task会捕获`next_future`。当socket连接的时候，事件循环运行回调函数`on_connected`,然后解析future，调用`step`,恢复`fetch`.
+
+## 抓取器协程 `yield from`
