@@ -531,3 +531,144 @@ loop()
 task 通过`fetch`会发送`None`来启动生成器，`fetch`会运行到yields，task会捕获`next_future`。当socket连接的时候，事件循环运行回调函数`on_connected`,然后解析future，调用`step`,恢复`fetch`.
 
 ## 抓取器协程 `yield from`
+
+一旦socket连接上了，我们会发送 HTTP 的GET 请求然后读取响应内容。这些步骤不会再分散到各个回调中，我们将集中到相同的生成函数中。
+```python
+    def fetch(self):
+        # ... connection logic from above, then:
+        sock.send(request.encode('ascii'))
+
+        while True:
+            f = Future()
+
+            def on_readable():
+                f.set_result(sock.recv(4096))
+
+            selector.register(sock.fileno(),
+                              EVENT_READ,
+                              on_readable)
+            chunk = yield f
+            selector.unregister(sock.fileno())
+            if chunk:
+                self.response += chunk
+            else:
+                # Done reading.
+                break
+```
+
+这段代码读取socket所有返回信息，看上去很有用。我们如何将它从`fetch` 转换为子程序呢？现在的Py3`yield from`有令人欣喜的特性，他可以将一个generator代理给另一个generator.
+
+该如何做呢？我们先回顾一下那个简单的例子：
+
+```python
+>>> def gen_fn():
+...     result = yield 1
+...     print('result of yield: {}'.format(result))
+...     result2 = yield 2
+...     print('result of 2nd yield: {}'.format(result2))
+...     return 'done'
+...   
+```
+
+为了从一个generator调用另一个generator,即代理使用`yield from`.
+
+```python
+>>> # Generator function:
+>>> def caller_fn():
+...     gen = gen_fn()
+...     rv = yield from gen
+...     print('return value of yield-from: {}'
+...           .format(rv))
+...
+>>> # Make a generator from the
+>>> # generator function.
+>>> caller = caller_fn()
+```
+
+`caller`就像是在使用一个生成器，实际上它之前是`gen`，它仅仅是gen的委托：
+
+```python
+>>> caller.send(None)
+1
+>>> caller.gi_frame.f_lasti
+15
+>>> caller.send('hello')
+result of yield: hello
+2
+>>> caller.gi_frame.f_lasti  # Hasn't advanced.
+15
+>>> caller.send('goodbye')
+result of 2nd yield: goodbye
+return value of yield-from: done
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+StopIteration
+```
+
+当`caller`从`gen`生成代理，`caller`并没有更进一步。注意到这些它的指令指针仍旧在15，也就是`yield from`声明处，甚至当内层生成器`gen`从`yield`声明到下一步。从我们的外层`caller`来看，我们也不能确定值是来自`caller`还是委托的生成器。对于内层的`gen`来说我们也不能确定sent是来自`caller`还是来之与外部。`yield from` 是一个无摩擦的通道，通过它的值的流入和流出`gen`直到`gen`完成。
+
+```python
+rv = yield from gen
+```
+早些时候，当我们批评基于回调的异步编程时，最为诟病的是关于"stack ripping"（堆栈翻录）：当我们的回调抛出异常的时候，栈追溯的类型无用。因为仅仅显示了是什么事件循环调用了回调，并没有说为什么，那么协程怎么样呢？
+
+```python
+>>> def gen_fn():
+...     raise Exception('my error')
+>>> caller = caller_fn()
+>>> caller.send(None)
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+  File "<input>", line 3, in caller_fn
+  File "<input>", line 2, in gen_fn
+Exception: my error
+```
+
+这样的信息太有用了~！栈追溯显示了`caller_fn`为`gen_fn`的代理，当它抛出异常的时候。甚至，我们可以捕捉调用的子协程在异常句柄中，就像是调试子程序一样：
+
+```python
+>>> def gen_fn():
+...     yield 1
+...     raise Exception('uh oh')
+...
+>>> def caller_fn():
+...     try:
+...         yield from gen_fn()
+...     except Exception as exc:
+...         print('caught {}'.format(exc))
+...
+>>> caller = caller_fn()
+>>> caller.send(None)
+1
+>>> caller.send('hello')
+caught uh oh
+```
+于是 我们实际逻辑正如使用常规的子程序一样。让我们从`fetcher`得到一个有用的子协程。我们编写`read`协程来接收数据：
+
+```python
+def read(sock):
+    f = Future()
+
+    def on_readable():
+        f.set_result(sock.recv(4096))
+
+    selector.register(sock.fileno(), EVENT_READ, on_readable)
+    chunk = yield f  # Read one chunk.
+    selector.unregister(sock.fileno())
+    return chunk
+```
+
+我们将使用`read`来构建`read_all`的协程用于接收所有的信息。
+
+```python
+def read_all(sock):
+response = []
+# Read whole response.
+chunk = yield from read(sock)
+while chunk:
+    response.append(chunk)
+    chunk = yield from read(sock)
+
+return b''.join(response)
+```
+
