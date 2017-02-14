@@ -17,10 +17,9 @@ def fibonac(step):
         else:
             c = a + b
             a = b
-            b = cz
+            b = c
 
             yield a
-
         n += 1
 
 
