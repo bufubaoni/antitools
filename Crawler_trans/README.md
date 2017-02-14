@@ -283,3 +283,392 @@ Exception: parse error
 
 
 ## 协程
+一个诱人的承诺，可以编写异步代码，将毁掉的效率与传统的多线程结合起来。这种组合称谓`coroutines`协程，使用py3.4的标准的 asyncio 库和一个 "aiohttp"的包，在协程中直接获取url。
+
+```python
+    @asyncio.coroutine
+    def fetch(self, url):
+        response = yield from self.session.get(url)
+        body = yield from response.read()
+```
+他也是可扩展的，对比与50k的线程消耗的内存和操作系统对线程的限制，一个py的协程任务在 Jesse 的系统上只占用3k的内存。python 可以轻松的开启数十万的协程。
+
+协程的概念，可以追溯到计算机科学的起初，很简单：他是一个可以暂停和恢复的子程序。而线程是由操作系统抢占式多任务，协同是多任务协作：他们选择何时停止，以及何时运行下一个。
+
+有很多协程的实现，即使在py中也有好几个。py3中有一个标准"asyncio"库中协程是基于generators，Future 类和"yield from"语句构建的。从py3.5开始协程作为语言的本身的属性，然而，了解协程，因为他们第一次在py3.4 中实现，使用预先存在的语言工具，是解决py3.5 本地协程的基础。
+
+为了解释py3.4 的基于 generators 协程，我们将介绍一些 generators 和如何在 asyncio 中使用协程，我相信你会喜欢阅读他，就像我们喜欢它一样。一旦我们解释基于 generators的协程程序，我们将在异步web 爬虫中使用它们。
+
+## Python 的 Generators 如何工作
+在你掌握 Generator 之前，你必须了解一般情况下python的函数的工作原理。通常，当py函数调用子进程的时候，子例程保留控制，知道返回或者抛出异常，然后控制权交还给调用者：
+
+```python
+>>> def foo():
+...     bar()
+...
+>>> def bar():
+...     pass
+```
+
+python 官方解释器是用C来写的。执行py函数的c函数被称之为 mellifluously,`PyEval_EvalFrameEx`。它需要一个python的栈框架对象，并在框架的上下文中评估py的字节码。这里是`foo`的字节码：
+
+```python
+>>> import dis
+>>> dis.dis(foo)
+  2           0 LOAD_GLOBAL              0 (bar)
+              3 CALL_FUNCTION            0 (0 positional, 0 keyword pair)
+              6 POP_TOP
+              7 LOAD_CONST               0 (None)
+             10 RETURN_VALUE
+```
+
+`foo`在调用`bar`函数的时候压入函数栈，然后从栈上弹出它的返回值，将 `None`压栈，然后返回`None`。
+
+当 `PyEval_EvalFrameEx` 遇到`CALL_FUNCTION`字节码的时候，他创建一个新的py栈框架和资源：它调用`PyEval_EvalFrameEx`并使用新的资源，这些资源将被用来执行`bar`
+
+了解py堆栈帧在堆内存的分配是很重要的！py的解释器是一个正常的c程序，所以他的堆栈也是正常的堆栈帧。但py操作堆栈帧是在堆上。除此之外，这意味着py的堆栈帧可以超越其函数调用。要以交互的方式查看，请从`bar`内部保存当前帧：
+
+```python
+>>> import inspect
+>>> frame = None
+>>> def foo():
+...     bar()
+...
+>>> def bar():
+...     global frame
+...     frame = inspect.currentframe()
+...
+>>> foo()
+>>> # The frame was executing the code for 'bar'.
+>>> frame.f_code.co_name
+'bar'
+>>> # Its back pointer refers to the frame for 'foo'.
+>>> caller_frame = frame.f_back
+>>> caller_frame.f_code.co_name
+'foo'
+```
+
+![img](http://aosabook.org/en/500L/crawler-images/function-calls.png)
+
+该功能现在设置为py的 generators ，使用相同的构建块-代码兑现和堆栈帧-达到特殊效果。
+
+下面是生成器的函数：
+
+```python
+>>> def gen_fn():
+...     result = yield 1
+...     print('result of yield: {}'.format(result))
+...     result2 = yield 2
+...     print('result of 2nd yield: {}'.format(result2))
+...     return 'done'
+...  
+```
+
+当py完成`gen_fn`字节码，它执行到`yield`语句然后得知`gen_fn`是一个生成函数，并不是一般的函数。他在内存重打下标志：
+
+```python
+>>> # The generator flag is bit position 5.
+>>> generator_bit = 1 << 5
+>>> bool(gen_fn.__code__.co_flags & generator_bit)
+True
+```
+
+当调用生成函数的时候，python将会看到生成器标志，他并不返回一个函数，而是创建一个生成器：
+
+```python
+>>> gen = gen_fn()
+>>> type(gen)
+<class 'generator'>
+```
+python 生成器封装了在栈上加上代码的引用，`gen_fn`的主体：
+
+```python
+>>> gen.gi_code.co_name
+'gen_fn'
+```
+从`gen_fn`调用的所有生成器都指向相同的代码。但是每个都有自己的堆栈帧。这个对战帧不存在于任何实际的堆栈，它只是等待调用：
+
+![generators](http://aosabook.org/en/500L/crawler-images/generator.png)
+
+该帧拥有"last instruction"指针（最后指令），它表示最近执行的命令。初始值为-1，表示生成器尚未开始：
+
+```python
+>>> gen.gi_frame.f_lasti
+-1
+```
+
+当我们调用`send`,生成器到达第一个`yield`,然后暂停。`send`的返回值为 1 ，因为传递给`gen`的是一个`yield`表达式。
+
+```python
+>>> gen.send(None)
+1
+```
+从开始计算（生成器）生成器的指令为3字节，部分通过编译的python代码为56字节：
+
+```python
+>>> gen.gi_frame.f_lasti
+3
+>>> len(gen.gi_code.co_code)
+56
+```
+生成器可以在任何时候从任何函数回复，因为他的堆栈帧在堆上，而非栈上。它在调用层次结构中的位置不是固定的，并且不遵循常规函数的先进先出顺序。它是自由的，无束缚的。
+
+我们可以给生成器发送"hello"然后它将返回`yield`表达式，生成器会继续执行，直到 `yield 2`:
+
+```python
+>>> gen.send('hello')
+result of yield: hello
+2
+```
+现在栈上信息包括局部变量`result`:
+
+```python
+>>> gen.gi_frame.f_locals
+{'result': 'hello'}
+```
+从`gen_fn`创建的其他的生成器将有自己的堆栈帧和局部变量。
+
+当我们再次调用`send`的时候，生成器继续从他的第二个`yield`,完成之后会抛出`StopIteration`异常。
+
+```python
+>>> gen.send('goodbye')
+result of 2nd yield: goodbye
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+StopIteration: done
+```
+这个异常会有一个返回值"done".
+
+## 使用生成器建立协程
+因此生成器可以停止，并且可以使用恢复值，并且它具有返回值。听起来很适合构建异步编程模型，没有意大利面条一样的回调！我们想构建一个"协程"：一个在程序中和其他程序合作（scheduled）的程序。我们的协程将是python的标准库"asyncio"的简化版本。在asyncio我们将使用 generator, futures 和"yield from"语句。
+
+首先我们需要一种表示协程正在等待结果的方法。精简版本：
+
+```python
+class Future:
+    def __init__(self):
+        self.result = None
+        self._callbacks = []
+
+    def add_done_callback(self, fn):
+        self._callbacks.append(fn)
+
+    def set_result(self, result):
+        self.result = result
+        for fn in self._callbacks:
+            fn(self)
+```
+
+future事例的初始化为待定，它通过`set_result`来"解析".
+
+```python
+class Fetcher:
+    def fetch(self):
+        self.sock = socket.socket()
+        self.sock.setblocking(False)
+        try:
+            self.sock.connect(('xkcd.com', 80))
+        except BlockingIOError:
+            pass
+        selector.register(self.sock.fileno(),
+                          EVENT_WRITE,
+                          self.connected)
+
+    def connected(self, key, mask):
+        print('connected!')
+        # And so on....
+```
+
+`fetch`首先连接socket，然后注册了一个回调，`connected`,当socket连接时执行。现在我们可以在一个协程中结合此两步：
+```python
+    def fetch(self):
+        sock = socket.socket()
+        sock.setblocking(False)
+        try:
+            sock.connect(('xkcd.com', 80))
+        except BlockingIOError:
+            pass
+
+        f = Future()
+
+        def on_connected():
+            f.set_result(None)
+
+        selector.register(sock.fileno(),
+                          EVENT_WRITE,
+                          on_connected)
+        yield f
+        selector.unregister(sock.fileno())
+        print('connected!')
+```
+`fetch`是一个生成函数，而不是一个常规的函数，因为他包含`yield`语句。我们创建一个等待的future,yield 会暂停`fetch`直到socket准备完毕。内函数`on_connected`会解析 future.
+
+但是当 future解析完成后，如何恢复生成器呢？我们需要一个协程 驱动。让我们叫他"task":
+
+```python
+class Task:
+    def __init__(self, coro):
+        self.coro = coro
+        f = Future()
+        f.set_result(None)
+        self.step(f)
+
+    def step(self, future):
+        try:
+            next_future = self.coro.send(future.result)
+        except StopIteration:
+            return
+
+        next_future.add_done_callback(self.step)
+
+# Begin fetching http://xkcd.com/353/
+fetcher = Fetcher('/353/')
+Task(fetcher.fetch())
+
+loop()
+```
+
+task 通过`fetch`会发送`None`来启动生成器，`fetch`会运行到yields，task会捕获`next_future`。当socket连接的时候，事件循环运行回调函数`on_connected`,然后解析future，调用`step`,恢复`fetch`.
+
+## 抓取器协程 `yield from`
+
+一旦socket连接上了，我们会发送 HTTP 的GET 请求然后读取响应内容。这些步骤不会再分散到各个回调中，我们将集中到相同的生成函数中。
+```python
+    def fetch(self):
+        # ... connection logic from above, then:
+        sock.send(request.encode('ascii'))
+
+        while True:
+            f = Future()
+
+            def on_readable():
+                f.set_result(sock.recv(4096))
+
+            selector.register(sock.fileno(),
+                              EVENT_READ,
+                              on_readable)
+            chunk = yield f
+            selector.unregister(sock.fileno())
+            if chunk:
+                self.response += chunk
+            else:
+                # Done reading.
+                break
+```
+
+这段代码读取socket所有返回信息，看上去很有用。我们如何将它从`fetch` 转换为子程序呢？现在的Py3`yield from`有令人欣喜的特性，他可以将一个generator代理给另一个generator.
+
+该如何做呢？我们先回顾一下那个简单的例子：
+
+```python
+>>> def gen_fn():
+...     result = yield 1
+...     print('result of yield: {}'.format(result))
+...     result2 = yield 2
+...     print('result of 2nd yield: {}'.format(result2))
+...     return 'done'
+...   
+```
+
+为了从一个generator调用另一个generator,即代理使用`yield from`.
+
+```python
+>>> # Generator function:
+>>> def caller_fn():
+...     gen = gen_fn()
+...     rv = yield from gen
+...     print('return value of yield-from: {}'
+...           .format(rv))
+...
+>>> # Make a generator from the
+>>> # generator function.
+>>> caller = caller_fn()
+```
+
+`caller`就像是在使用一个生成器，实际上它之前是`gen`，它仅仅是gen的委托：
+
+```python
+>>> caller.send(None)
+1
+>>> caller.gi_frame.f_lasti
+15
+>>> caller.send('hello')
+result of yield: hello
+2
+>>> caller.gi_frame.f_lasti  # Hasn't advanced.
+15
+>>> caller.send('goodbye')
+result of 2nd yield: goodbye
+return value of yield-from: done
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+StopIteration
+```
+
+当`caller`从`gen`生成代理，`caller`并没有更进一步。注意到这些它的指令指针仍旧在15，也就是`yield from`声明处，甚至当内层生成器`gen`从`yield`声明到下一步。从我们的外层`caller`来看，我们也不能确定值是来自`caller`还是委托的生成器。对于内层的`gen`来说我们也不能确定sent是来自`caller`还是来之与外部。`yield from` 是一个无摩擦的通道，通过它的值的流入和流出`gen`直到`gen`完成。
+
+```python
+rv = yield from gen
+```
+早些时候，当我们批评基于回调的异步编程时，最为诟病的是关于"stack ripping"（堆栈翻录）：当我们的回调抛出异常的时候，栈追溯的类型无用。因为仅仅显示了是什么事件循环调用了回调，并没有说为什么，那么协程怎么样呢？
+
+```python
+>>> def gen_fn():
+...     raise Exception('my error')
+>>> caller = caller_fn()
+>>> caller.send(None)
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+  File "<input>", line 3, in caller_fn
+  File "<input>", line 2, in gen_fn
+Exception: my error
+```
+
+这样的信息太有用了~！栈追溯显示了`caller_fn`为`gen_fn`的代理，当它抛出异常的时候。甚至，我们可以捕捉调用的子协程在异常句柄中，就像是调试子程序一样：
+
+```python
+>>> def gen_fn():
+...     yield 1
+...     raise Exception('uh oh')
+...
+>>> def caller_fn():
+...     try:
+...         yield from gen_fn()
+...     except Exception as exc:
+...         print('caught {}'.format(exc))
+...
+>>> caller = caller_fn()
+>>> caller.send(None)
+1
+>>> caller.send('hello')
+caught uh oh
+```
+于是 我们实际逻辑正如使用常规的子程序一样。让我们从`fetcher`得到一个有用的子协程。我们编写`read`协程来接收数据：
+
+```python
+def read(sock):
+    f = Future()
+
+    def on_readable():
+        f.set_result(sock.recv(4096))
+
+    selector.register(sock.fileno(), EVENT_READ, on_readable)
+    chunk = yield f  # Read one chunk.
+    selector.unregister(sock.fileno())
+    return chunk
+```
+
+我们将使用`read`来构建`read_all`的协程用于接收所有的信息。
+
+```python
+def read_all(sock):
+response = []
+# Read whole response.
+chunk = yield from read(sock)
+while chunk:
+    response.append(chunk)
+    chunk = yield from read(sock)
+
+return b''.join(response)
+```
+
