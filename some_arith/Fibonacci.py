@@ -10,7 +10,3 @@ def fibonac(step):
         yield a
         a, b = b, a+b
         n += 1
-
-
-for i in fibonac(14):
-    print i
