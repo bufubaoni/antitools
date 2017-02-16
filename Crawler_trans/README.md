@@ -671,4 +671,5 @@ while chunk:
 
 return b''.join(response)
 ```
-
+如果你不看 `yield` 语句， 那么这看起来很像是阻塞i/o函数。事实上`read`和`read_all`就是协程，从`read`到暂停`read_all`，直到i/o完成。当`read_all`
+暂停时，异步事件循环执行其他工作，并等待其他i/o事件，`read_all`在恢复事件准备好后，在下一个循环读取结果，
