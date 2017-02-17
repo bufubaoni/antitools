@@ -7,6 +7,11 @@ def fibonac(step):
     b = 1
     n = 0
     while step > n:
-        yield a
-        a, b = b, a+b
+        a, b = b, a + b
+        yield b
+
         n += 1
+
+if __name__ == "__main__":
+    for i in fibonac(11):
+        print i

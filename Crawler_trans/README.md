@@ -672,4 +672,48 @@ while chunk:
 return b''.join(response)
 ```
 如果你不看 `yield` 语句， 那么这看起来很像是阻塞i/o函数。事实上`read`和`read_all`就是协程，从`read`到暂停`read_all`，直到i/o完成。当`read_all`
-暂停时，异步事件循环执行其他工作，并等待其他i/o事件，`read_all`在恢复事件准备好后，在下一个循环读取结果，
+暂停时，异步事件循环执行其他工作，并等待其他i/o事件，`read_all`在恢复事件准备好后，在下一个循环读取结果。
+
+在根栈，`fetch` 调用 `read_all`：
+
+```python
+class Fetcher:
+    def fetch(self):
+         # ... connection logic from above, then:
+        sock.send(request.encode('ascii'))
+        self.response = yield from read_all(sock)
+```
+
+神奇的是，Task 这个类不需要做任何修改。它驱使外层的`fetch`协程和之前一样：
+
+```python
+Task(fetcher.fetch())
+loop()
+```
+
+当`read`产生之后，task通过 `yield from`语句的通道来接受它，好像future直接从`fetch`产生。当循环解决future时，task将结果发送到`fetch`,并且读取接受该值，就像是task驱动的直接读取一样。
+
+![img](http://aosabook.org/en/500L/crawler-images/yield-from.png)
+
+为了完美的实现我们的协程，我们使用一个小技巧：我们的代码使用`yield`当它等待future，但是`yield from`当它代理子协程的时候。他更多的依赖使用`yield from`无论什么时候停止协程。然后协程并不需要关心他等待什么类型的事情。
+
+我们使用py的高级特性迭代器和生成器。生成器对应调用者，对于调用者来说，迭代器也有相同的功效。所以我们通过一个特殊方法是我们的Future类可迭代：
+
+```python
+    # Method on Future class.
+    def __iter__(self):
+        # Tell Task to resume me here.
+        yield self
+        return self.result
+```
+future 的 `__iter__`方法是协程自己成成自己，现在我们替换这一段代码：
+
+```python
+# f is a Future.
+yield f
+```
+和
+```python
+# f is a Future.
+yield from f
+```
