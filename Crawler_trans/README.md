@@ -735,6 +735,32 @@ yield from f
 当我们介绍完这些基础的内容后，我们回到之前的任务：使用异步写一个异步网络爬虫。
 
 ## 协同程序
+我们一开始描述了爬虫怎么工作。现在我们使用异步协程实现它。
 
+我们的爬虫会从第一个页面开始，解析他的链接，然后添加到队列中。在这之后，他分离出网站，同事抓取页面。但是为了限制客户端载入的页面，我们希望运行的worker有个最大的数字，不用太多。不论何时workers完成页面抓取，他应该立即开始从队列中的下一个。当没有足够的worker的时候我们需要将一些worker暂停。但是当worker点击一个多链接的页面的时候，列队会突然增长，任何暂停worker都会恢复。最后，我们的层序必须在工作完成后退出。
+
+假设我们的workers为线程。我们会怎么表达算法？我们可以使用标准库的同步队列。每一次想队列添加一个元素，队列就会增加其'task'的计数，worker的线程完成之后会调用`task_done`线程。主线程会在`Queue.join`阻塞，当队列中所有的`task_done`都匹配之后就会退出。
+
+协程使用与异步队列相同的的模式！我们先import 它！
+
+```python
+try:
+    from asyncio import JoinableQueue as Queue
+except ImportError:
+    # In Python 3.5, asyncio.JoinableQueue is
+    # merged into Queue.
+    from asyncio import Queue
+```
+
+我们在`crawler`类中收集worker的共享状态，并把`crawl`方法写入主逻辑。我们启动`crawl`协程并运行异步事件循环，直到`crawl`完成。
+
+```python
+loop = asyncio.get_event_loop()
+
+crawler = crawling.Crawler('http://xkcd.com',
+                           max_redirect=10)
+
+loop.run_until_complete(crawler.crawl())
+```
 
 
