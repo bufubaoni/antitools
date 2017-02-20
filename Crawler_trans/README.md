@@ -762,5 +762,109 @@ crawler = crawling.Crawler('http://xkcd.com',
 
 loop.run_until_complete(crawler.crawl())
 ```
+爬虫从根url和`max_redirect`开始,获取任意网页重定向的数量。将`(URL, max_redirect)`放入队列。（理由，关注）。
+
+```python
+class Crawler:
+    def __init__(self, root_url, max_redirect):
+        self.max_tasks = 10
+        self.max_redirect = max_redirect
+        self.q = Queue()
+        self.seen_urls = set()
+
+        # aiohttp's ClientSession does connection pooling and
+        # HTTP keep-alives for us.
+        self.session = aiohttp.ClientSession(loop=loop)
+
+        # Put (URL, max_redirect) in the queue.
+        self.q.put((root_url, self.max_redirect))
+```
+
+队列中未完成的任务数量为1.回到我们主函数，我们启动时间循环和`crawl`方法。
+
+```python
+loop.run_until_complete(crawler.crawl())
+```
+
+`crawl`协程启动workers。它就像一个主线程：阻塞在`join`直到所有的任务完成，而workers在后台运行。
+
+```python
+    @asyncio.coroutine
+    def crawl(self):
+        """Run the crawler until all work is done."""
+        workers = [asyncio.Task(self.work())
+                   for _ in range(self.max_tasks)]
+
+        # When all work is done, exit.
+        yield from self.q.join()
+        for w in workers:
+            w.cancel()
+```
+
+如果workers是线程的话我们不希望一次性启动他们。除非必要，应该尽量避免创建过多的线程，线程池通常根据需要增长。但是协程就很轻量，所以我们允许简单的一次性开始最大的数量。
+
+有趣的是我们如何停止爬虫。当`join`future的时候，worker的task仍然存活但是被停职：他们等待更多的url，但是没有道理。因此主协程在推出之前取消了他们。否则，当py的解释器关闭并调用所有对象的析构函数的时候，这些tasks会强制结束：
+
+```python
+ERROR:asyncio:Task was destroyed but it is pending!
+```
+
+如何`cancel`work？生成器具有我们未展示的功能，能可以将异常从外部抛入生成器：
+
+```python
+>>> gen = gen_fn()
+>>> gen.send(None)  # Start the generator as usual.
+1
+>>> gen.throw(Exception('error'))
+Traceback (most recent call last):
+  File "<input>", line 3, in <module>
+  File "<input>", line 2, in gen_fn
+Exception: error
+```
+生成器通过throw恢复，但他现在引发异常。如果生长期调用栈中没有捕获异常，则异常将会被顶部捕获，所以要取消任务的协程：
+
+```python
+    # Method of Task class.
+    def cancel(self):
+        self.coro.throw(CancelledError)
+```
+
+不论生成器在何处停止，在`yield from`语句，它恢复和抛出一个异常。我们在任务的`step`方法中处理取消：
+
+```python
+    # Method of Task class.
+    def step(self, future):
+        try:
+            next_future = self.coro.send(future.result)
+        except CancelledError:
+            self.cancelled = True
+            return
+        except StopIteration:
+            return
+
+        next_future.add_done_callback(self.step)
+```
+现在任务知道他被取消，所以当其被销毁的时候会正常退出。
+
+一旦`crawl`方法取消了workers，它将会推出。事件循环意识到协程完成，也同样会退出：
+
+```python
+loop.run_until_complete(crawler.crawl())
+```
+`crawl`方法包含我们的主协程必须做的。他是worker的协程，从队列获取url，并解析他们的新链接，每一个worker的`work`的协程是独立的。
+
+```python
+    @asyncio.coroutine
+    def work(self):
+        while True:
+            url, max_redirect = yield from self.q.get()
+
+            # Download page and add new links to self.q.
+            yield from self.fetch(url, max_redirect)
+            self.q.task_done()
+```
+
+
+
 
 
