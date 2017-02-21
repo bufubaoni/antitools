@@ -872,5 +872,63 @@ worker通过队列与协程协调。他等待以下内容：
     url, max_redirect = yield from self.q.get()
 ```
 
+队列的`get`方法本身就是协程：它暂停直到向队列中添加内容，然后恢复和返回内容。
+
+顺便说一下，这些worker会在爬取后暂停，当主协程取消它。从协程的角度而言，最后一次的`yield from` 会抛出`CancelledError`。
+
+当worker抓取页面和解析链接然后将新的放入队列，然后调用`task_done`计数器减一。最后，worker获取已经获取的url的页面，并且队列为空。然后等待队列`join`方法的`crawl`被取消暂停并完成。
+
+我们解释为什么队列中的结构如此：
+
+```python
+# URL to fetch, and the number of redirects left.
+('http://xkcd.com/353', 10)
+```
+
+新网址有10个重定向，获取网址会导致重定向到带有斜杠的心位置，我们减少剩余的重定向树，并将下一个位置放入队列：
+
+```python
+# URL with a trailing slash. Nine redirects left.
+('http://xkcd.com/353/', 9)
+```
+
+`aiohttp`包我们重定向到默认然后得到最终的响应。然而我们告诉他不会在crawler中处理重定向，因此它可以合并同样的重定向：如果我们已经看到这个url，他在`self.seen_urls`,我们开始在这个路径从不同的入口点：
+
+![img](http://aosabook.org/en/500L/crawler-images/redirects.png)
+
+Crawler爬去"foo"然后寻找"baz",所以通过`seen_urls`添加"baz"到队列中.如果下一个页面中仍然抓取到"bar",仍然重定向到"baz",那么这个抓取器就不再添加到队列了。如果响应是一个页面，而不是重定向，`fetch`会解析他的链接然后添加新的链接到队列。
+
+```python
+    @asyncio.coroutine
+    def fetch(self, url, max_redirect):
+        # Handle redirects ourselves.
+        response = yield from self.session.get(
+            url, allow_redirects=False)
+
+        try:
+            if is_redirect(response):
+                if max_redirect > 0:
+                    next_url = response.headers['location']
+                    if next_url in self.seen_urls:
+                        # We have been down this path before.
+                        return
+
+                    # Remember we have seen this URL.
+                    self.seen_urls.add(next_url)
+
+                    # Follow the redirect. One less redirect remains.
+                    self.q.put_nowait((next_url, max_redirect - 1))
+             else:
+                 links = yield from self.parse_links(response)
+                 # Python set-logic:
+                 for link in links.difference(self.seen_urls):
+                    self.q.put_nowait((link, self.max_redirect))
+                self.seen_urls.update(links)
+        finally:
+            # Return connection to pool.
+            yield from response.release()
+```
+
+如果这是多线程的代码，它就没有这么好的特性了。例如，worker检查链接是否在`seen_urls`,如果没有就将他添加到`seen_urls`.
 
 
