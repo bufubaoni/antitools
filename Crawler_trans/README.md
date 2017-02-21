@@ -864,7 +864,13 @@ loop.run_until_complete(crawler.crawl())
             self.q.task_done()
 ```
 
+py解释器看到这段代码包含`yield from`语句，将他编译为生成函数。所以在`crawl`中，当住协程调用`self.work`十次，并不是真正的执行了这个方法：它仅仅创建了10个生成器对象。他在任务的包裹中。任务接收每个生成器的`yield`,并且通过调用`send`来驱动生成器与每一个future结果。因为生成器有自己的堆栈，所以他们独立运行，并且具有独立的局部变量和指令指针。
 
+worker通过队列与协程协调。他等待以下内容：
+
+```python
+    url, max_redirect = yield from self.q.get()
+```
 
 
 
