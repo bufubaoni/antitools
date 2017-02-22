@@ -929,6 +929,109 @@ Crawler爬去"foo"然后寻找"baz",所以通过`seen_urls`添加"baz"到队列�
             yield from response.release()
 ```
 
-如果这是多线程的代码，它就没有这么好的特性了。例如，worker检查链接是否在`seen_urls`,如果没有就将他添加到`seen_urls`.
+如果这是多线程的代码，它就没有这么好的特性了。例如，worker检查链接是否在`seen_urls`,如果没有就将他添加到`seen_urls`.如果两个操作之间有中断，那么另一个worker会解析同一个url不过来自不同的页面，当然这个这个url没有在`seen_urls`，并且url在队列中。现在同样的链接会加入队列两次导致重复（最多）的工作和错误的统计
+
+然而，协程只人弄归一收到语句`yield from`的中断影响，这是也是一个关键的区别，似的协同代码比多线程代码更不容易发生竞争：多线程必须通过抓取来显式的抓取锁进入临界区，否则他就可能发生中断，py的协程默认情况下死后不可中断的，并且只有他显式控制的时候才可能发生。
+
+我们不在像基于回调那样需要fetcher类。这个类就是来解决不同的回调：他们就是用来存储等待i/o的状态，因为他们的局部变量不会保留。但是`fetch`协程可以存储自己的状态在局部变量中像一般函数一样，所以他们不在需要这个类。
+
+当`fetch`完成服务器响应返回调用的`work`的时候。`work`方法在队列上调用`task_done`继而从队列中得到下一个url以便抓取。
+
+当`fetch`想队列中添加一个新链接的时候他会对没有完成任务的数量加一然后保持主协程，等待`q.join`,暂停。如果未爬去的裂解有最后的url在队列的话，当`work`调用`task_done`的时候技术没有到0，事件就不会停止`join`然后主协程完成。
+
+队列的代码主协程和调度如下：
+
+```python
+class Queue:
+    def __init__(self):
+        self._join_future = Future()
+        self._unfinished_tasks = 0
+        # ... other initialization ...
+
+    def put_nowait(self, item):
+        self._unfinished_tasks += 1
+        # ... store the item ...
+
+    def task_done(self):
+        self._unfinished_tasks -= 1
+        if self._unfinished_tasks == 0:
+            self._join_future.set_result(None)
+
+    @asyncio.coroutine
+    def join(self):
+        if self._unfinished_tasks > 0:
+            yield from self._join_future
+```
+
+在主协程中，`crawl`,从`join`yield而来。所以当最后最后worker减一但是计数没有到0的时候，它通知`crawl`恢复，然后完成。
+
+程序快结束，我们的程序从调用`crawl`开始。
+
+```python
+loop.run_until_complete(self.crawler.crawl())
+```
+那么程序如何停止呢？因为`crawl`是一个生成函数，调用它返回一个生成器。为了操作生成器，异步装饰他的任务：
+
+```python
+class EventLoop:
+    def run_until_complete(self, coro):
+        """Run until the coroutine is done."""
+        task = Task(coro)
+        task.add_done_callback(stop_callback)
+        try:
+            self.run_forever()
+        except StopError:
+            pass
+
+class StopError(BaseException):
+    """Raised to stop the event loop."""
+
+def stop_callback(future):
+    raise StopError
+```
+当任务完成，它会抛出`StopError`，这个错误会正常的结束循环。
+
+这又是什么？任务有`add_done_callback`和`result`这两个函数？你或许任务这是任务类似future。你基本是正确的，我们必须承认我们隐藏了Task类的细节：任务的继承自future：
+
+```python
+class Task(Future):
+    """A coroutine wrapped in a Future."""
+```
+一般情况下future在函数`set_result`中处理。但是如果协程停止他就要自己处理自己。记住我们早些金额少的py生成器当生成器返回他会抛出特殊的`StopIteration`异常：
+
+```python
+    # Method of class Task.
+    def step(self, future):
+        try:
+            next_future = self.coro.send(future.result)
+        except CancelledError:
+            self.cancelled = True
+            return
+        except StopIteration as exc:
+
+            # Task resolves itself with coro's return
+            # value.
+            self.set_result(exc.value)
+            return
+
+        next_future.add_done_callback(self.step)
+```
+所以当时间循环调用`task.add_done_callback(stop_callback)`的时候，它就准备停止这个任务了。这里再一次`run_until_complete`：
+
+```python
+    # Method of event loop.
+    def run_until_complete(self, coro):
+        task = Task(coro)
+        task.add_done_callback(stop_callback)
+        try:
+            self.run_forever()
+        except StopError:
+            pass
+```
+当任务捕捉到`StopIteration`的时候自己会结局，回掉在内部抛出`StopError`。循环停止然后调用栈`run_until_complete`。我们的程序完成。
+
+## 总结
+
+
 
 
