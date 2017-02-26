@@ -63,9 +63,9 @@ try:
 except BlockingIOError:
     pass
 ```
-一个非阻塞的socket当`connect`的时候会触发异常，这个异常只是重现底层c的一个方法，这个方法将`errno`设置为`EINPROGRESS`告知方法开始。
+一个非阻塞的socket当`connect`的时候会触发异常，这个异常只是重现底层c的一个方法，这个方法将`errno`设置为`EINPROGRESS`并告知方法开始。
 
-所以说爬虫应当知道连接何时开始，以发送http 请求，我们使用一个简单的循环来发送请求：
+为了发送http请求，爬虫应该知道什么时候开始，我们使用一个简单的循环来发送请求：
 
 ```python
 request = 'GET {} HTTP/1.0\r\nHost: xkcd.com\r\n\r\n'.format(url)
@@ -80,9 +80,9 @@ while True:
 
 print('sent')
 ```
-当前方法不仅仅是费电，而且也不能有效的调度的多个socket，在最早的时候，BSD Uinx 的解决方法是*select*,C 方法等待非阻塞socket或者socket的数组。当代的互联网需求面对的是大量的连接应运而生的是如 *poll*,如bsd上的*kqueue*,linux上的*epoll*。这些api和*select*类似，但是解决的更大的连接数。
+当前方法不仅仅是费电，而且也不能有效的调度的多个socket，在最早的时候，BSD Uinx 的解决方法是`select`,C 方法等待非阻塞socket或者socket的数组。当代的互联网需求面对的是大量的连接,应运而生的是如 `poll`,如bsd上的`kqueue`,linux上的`epoll`。这些api和`select`类似，但是可以解决更大的连接数。
 
-py3.4的 `DefaultSelector`使用更好的如`select`的方法在系统上。为了注册一个i/o相关的网络通知，我们创建一个非阻塞socket使用默认*select*注册。
+py3.4的 `DefaultSelector`会在系统上选择最好的类`select`的方法。为了注册一个网络i/o相关的通知，我们创建一个非阻塞socket使用默认`select`注册。
 
 ```python
 from selectors import DefaultSelector, EVENT_WRITE
@@ -105,6 +105,8 @@ selector.register(sock.fileno(), EVENT_WRITE, connected)
 
 我们忽略错误需要调用`selector.register`，传递socket的文件描述符和一个常量，来表示我们的等待事件。在连接开始时我们设置`EVENT_WRITE`:我们想知道什么时候socket是可读的，我们仍旧使用`connected`方法，当事件运行的时候调用的方法我们称之为回调函数。
 
+我们在选择器接收到信息时处理i/o通知，循环：
+
 ```python
 def loop():
     while True:
@@ -114,6 +116,7 @@ def loop():
             callback()
 ```
 `callback`回调函数存储的是`event_key.data`，一旦监测到非阻塞socket连接的时候就会执行。
+
 不同于第一次实现的循环，调用`select`暂停，等待下一个i/o事件。然后循环等待这些事件轮询执行。
 尚未完成的操作将始终保持挂起，直到某个时间循环执行。
 
