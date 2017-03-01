@@ -13,18 +13,17 @@ def stair(n):
         return stair(n - 1) + stair(n - 2) + stair(n - 3)
 
 
-def stair2(n):
+def stair2():
     a = 1
     b = 2
     c = 4
-    step = 0
-    while n > step:
+    while True:
         yield a
         a, b, c = b, c, a+b+c
-        step += 1
 
 
 if __name__ == "__main__":
     print stair(6)
-    for i in stair2(6):
-        print i
+    s = stair2()
+    for i in range(0,6):
+        print s.next()
