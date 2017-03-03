@@ -9,7 +9,7 @@ client.start_session()
 
 client.navigate("http://www.tianyancha.com/company/75507246")
 
-element = client.find_element("class name",'company_info')
+element = client.find_element("class name", 'company_info')
 
 print element.text
 
