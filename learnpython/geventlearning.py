@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 import gevent
 import time
+from gevent import monkey
+monkey.patch_all()
 
 
 def foo():
     print("foo pre_exe")
-    gevent.sleep(0)
     time.sleep(10)
     print("foo exe")
 
