@@ -18,6 +18,8 @@ hadoop熟悉程度
 
 celery分发队列并发处理，celery的定时任务
 
+git的branch 和 merge区别
+
 pep8 严格按照规范进行
 
 http长链接和websocket的区别
