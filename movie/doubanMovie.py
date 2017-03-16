@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/10/26
-
+# lower 40 requests per min
 import time
 import random
 
