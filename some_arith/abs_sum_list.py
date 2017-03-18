@@ -30,7 +30,6 @@ def abs_sum(listA,listB):
                 min_abs = tem
         else :
             min_abs = tem
-
         if min_abs[0]==0:
             return min_abs
  
@@ -38,4 +37,4 @@ def abs_sum(listA,listB):
 
 
 if __name__ == "__main__":
-    print abs_sum([62, 181, 106, 814, 892, 504, 890, 100, 24, 640],[ 684, 939, 749, 970, 596, 605, 194, 193, 127, 173])
+    print abs_sum([62, 181, 106, 814, 892, 504, 890, 100, 24, 649],[ 684, 939, 749, 970, 596, 605, 194, 193, 127, 173])
