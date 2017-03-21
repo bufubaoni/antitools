@@ -120,7 +120,7 @@ need
     pydal
     xlsxwriter
 
-it just to excel for simple
+it just to excel for simple, you should type your own config in `init.conf`.
 
 12. learnpython
 ----------------------------------------------------------
