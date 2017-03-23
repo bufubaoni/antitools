@@ -4,18 +4,6 @@
 from random import Random
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
-number = "4556"
-
-
-# im = Image.new('RGBA', (100, 40), (255,) * 4)
-#
-# r = Random()
-# draw = ImageDraw.ImageDraw(im)
-#
-# draw.text((0, 0), number, fill=(r.randint(0, 255), r.randint(0, 255), r.randint(0, 255)))
-#
-# im.save("test.jpg")
-
 
 def code_img(code, size):
     r = Random()
@@ -50,4 +38,4 @@ def code_img(code, size):
 
 
 if __name__ == "__main__":
-    code_img(number, 35)
+    code_img("1234", 35)
