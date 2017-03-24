@@ -12,29 +12,41 @@ def restful(para, result):
             request = _args.pop(0)
 
             Para = namedtuple("para", para.keys())
-            for key, value in request.data.items():
-                setattr(Para, key, value)
+            paras = Para(**request.data)
+
             Result = namedtuple("result", result.keys())
-            return task(cls, request, Para, Result, *_args, **k)
+            results = Result(**result)
+
+            Info = namedtuple("Info", ["msg", "status"])
+            info = Info("", -1)
+            
+            empty = [key for key, value in request.data.items() if not value]
+            if empty:
+                msg = " ".join(empty) + u"不能为空"
+                info = info._replace(msg=msg)
+                return info
+            return task(cls, request, paras, results, info, *_args, **k)
+
         return decorator
+
     return wrapping
 
 
-@restful({"username": "str",
-          "password": "str"},
-         {"result": "star"})
-def test(self, request, para, result):
+@restful({"username": "",
+          "password": ""},
+         {"result": ""})
+def test(self, request, para, result, info):
     print self
     print request
     # para.username = "fuck"
     # para.password = "1234546"
     # print dir(para)
     print dir(result)
-    print para._asdict
+    print info
+    import json
+    print json.dumps(para._asdict())
     print para.username
 
 
 if __name__ == "__main__":
     test("self", {"username": "username", "password": "password"})
-
-
