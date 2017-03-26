@@ -13,5 +13,6 @@ class JsonDict(dict):
         self[attr] = value
 
 if __name__ == "__main__":
-    j = JsonDict({"a":1,"b":2})
+    j = JsonDict({"a":1,"b":2,"c":["q5"]})
+    j.c.append("qq")
     print j
