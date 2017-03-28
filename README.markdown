@@ -137,3 +137,13 @@ spider crawing huaban baord
 once get img src will message the celery .
 the celery queue will save the img
 
+14. jsondict
+--------------------------------------------------------
+simple dict to object in python
+```python
+import JsonDict
+
+a = JsonDict({"a":"b"})
+
+print a.a
+```
