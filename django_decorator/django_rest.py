@@ -19,12 +19,7 @@ def restful(para, result):
 
             Info = namedtuple("Info", ["msg", "status"])
             info = Info("", -1)
-            
-            empty = [key for key, value in request.data.items() if not value]
-            if empty:
-                msg = " ".join(empty) + u"不能为空"
-                info = info._replace(msg=msg)
-                return info
+
             return task(cls, request, paras, results, info, *_args, **k)
 
         return decorator
