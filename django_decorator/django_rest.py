@@ -11,20 +11,29 @@ def restful(para, result):
             cls = _args.pop(0)
             request = _args.pop(0)
 
-            Para = namedtuple("para", para.keys())
-            paras = Para(**request.data)
+            paras = JsonDict(**para)
 
-            Result = namedtuple("result", result.keys())
-            results = Result(**result)
+            results = JsonDict(**result)
 
-            Info = namedtuple("Info", ["msg", "status"])
-            info = Info("", -1)
+            info = JsonDict({"msg": "",
+                             "status": -1})
 
             return task(cls, request, paras, results, info, *_args, **k)
 
         return decorator
 
     return wrapping
+
+
+class JsonDict(dict):
+    def __getattr__(self, attr):
+        try:
+            return self[attr]
+        except KeyError:
+            raise AttributeError(r"'JsonDict' objectg has no attribute '%s'" % attr)
+
+    def __setattr__(self, attr, value):
+        self[attr] = value
 
 
 @restful({"username": "",
@@ -36,7 +45,7 @@ def test(self, request, para, result, info):
     print dir(result)
     print info
     import json
-    print json.dumps(para._asdict())
+    print json.dumps(para)
     print para.username
 
 
