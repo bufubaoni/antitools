@@ -33,9 +33,6 @@ def restful(para, result):
 def test(self, request, para, result, info):
     print self
     print request
-    # para.username = "fuck"
-    # para.password = "1234546"
-    # print dir(para)
     print dir(result)
     print info
     import json
