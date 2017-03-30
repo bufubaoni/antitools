@@ -122,6 +122,28 @@ need
 
 it just to excel for simple, you should type your own config in `init.conf`.
 
+```conf
+    [mysql]
+    url:mysql://%(username)s:%(password)s@%(host)s/information_schema
+    username=root
+    password=password
+    host=xxx.xxx.xxx.xxx
+
+    [versonfile]
+    filename:%(name)s.json
+    name=verson
+
+    [excelfile]
+    filename:%(name)s.xlsx
+    name=test
+
+    [db2excel]
+    databasename:realtime_db
+    noneedtables:[]
+```
+
+then run `db2excel.py` for get excel file by yourself.
+
 12. learnpython
 ----------------------------------------------------------
 some base information for pro in work
