@@ -38,6 +38,12 @@ class RField(object):
         self._convert = {"str": str,
                          "int": int}
 
+    def __get__(self, instance, owner):
+        return self.value
+
+    def __set__(self, instance, value):
+        self.value = value
+
     @property
     def value(self):
         return self._convert[self._field_type](self._value)
@@ -52,15 +58,6 @@ class RField(object):
                 self._value = value
             else:
                 raise ValueError("%s value error", self._field_name)
-
-    # def __set__(self, instance, value):
-    #     print 1
-    #
-    #     self.value = value
-    #
-    # def __get__(self, instance, owner):
-    #     print 2
-    #     return self.value
 
 
 class JsonDict(dict):
@@ -88,13 +85,14 @@ def test(self, request, para, result, info):
 
 
 class Test(object):
-    def __init__(self):
-        self.username = RField("username", validators=lambda x: True if x < 20 else False)
+    pass
 
 
 if __name__ == "__main__":
     # test("self", {"username": "username", "password": "password"}
     t = Test()
+    # t["username"] = 10
+    t.good = 10
     t.username = 100
     print t.username
     # print type(b.a)
