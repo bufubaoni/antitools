@@ -1,0 +1,61 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "API test",
+        "description": "测试",
+        "version": "1.0.0"
+    },
+    "host": "www.test.com",
+    "schemas": [
+        "http",
+        "https"
+    ],
+    "basePath": "/",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/test": {
+            "post": {
+                "summary": "Product Types",
+                "description": "添加描述",
+                "paramaters": [
+                    {
+                        "name": "latitude",
+                        "in": "body",
+                        "description": "字段描述",
+                        "required": true,
+                        "type": "number",
+                        "format": "double",
+                        "schemas": {
+                            "type": "string",
+                            "example":"",
+                            "testapi":{
+                                "testapiContext":{
+                                    "messageId":"kkkkk",
+                                    "messageDateTime":"2017-04-01T16:00:00+1234"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pet updated."
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "petstore_auth": [
+                            "write:pets",
+                            "read:pets"
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
