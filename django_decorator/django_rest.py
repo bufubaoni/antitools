@@ -89,14 +89,8 @@ class Test(object):
 
 
 if __name__ == "__main__":
-    # test("self", {"username": "username", "password": "password"}
+    # test("self", {"username": "username", "password": "passwsord"}
     t = Test()
-    # t["username"] = 10
     t.good = 10
     t.username = 100
-    print t.username
-    # print type(b.a)
-    # field = RField("username", validators=lambda x: True if x < 20 else False)
-    # field = 10
-    # print field._field_name
-    # print type(field)
+    print t.username 
