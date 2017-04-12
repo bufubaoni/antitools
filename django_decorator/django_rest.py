@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # Created by ChenXin on 2017/3/23
 from collections import namedtuple
-
-
+import re
+import pdb
 def restful(para, result):
     def wrapping(task):
         def decorator(*a, **k):
@@ -15,6 +15,13 @@ def restful(para, result):
 
             results = JsonDict(**result)
 
+            irregular = []
+            for key, value in request.items():
+                if not re.match(para.get(key),request.get(key)):
+                    irregular.append(key)
+            print irregular
+
+            paras.update(**request)
             info = JsonDict({"msg": "",
                              "status": -1})
 
@@ -71,20 +78,15 @@ class JsonDict(dict):
         self[attr] = value
 
 
-@restful({"username": "",
-          "password": ""},
+@restful({"username": "[a-z].",
+          "password": "^[a-z]+$"},
          {"result": ""})
 def test(self, request, para, result, info):
-    print self
-    print request
-    print dir(result)
-    print info
-    import json
-    print json.dumps(para)
+    print para.username
     print para.username
 
 
-class Test(object):
+class Test(object):git
     pass
 
 
@@ -119,9 +121,9 @@ def test2():
 
 
 if __name__ == "__main__":
-    routes["rt_date_insert"]()
-    routes["rt_date_update"]()
-# test("self", {"username": "username", "password": "passwsord"}
+    # routes["rt_date_insert"]()
+    # routes["rt_date_update"]()
+    test("self", {"username": "username1", "password": "passwsord"})
 # t = Test()
 # t.good = 10
 # t.username = 100
