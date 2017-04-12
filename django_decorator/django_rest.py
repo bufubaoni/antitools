@@ -88,9 +88,41 @@ class Test(object):
     pass
 
 
+# class Route()
+routes = {}
+
+
+def route(table, method):
+    # routes = {}
+
+    def wrapping(task):
+        routes[table + "_" + method] = task
+
+        def decorator(*a, **k):
+            return task(*a, **k)
+
+        return decorator
+
+    return wrapping
+
+
+@route("rt_date", "insert")
+def test1():
+    print 1
+    pass
+
+
+@route("rt_date", "update")
+def test2():
+    print 2
+    pass
+
+
 if __name__ == "__main__":
-    # test("self", {"username": "username", "password": "passwsord"}
-    t = Test()
-    t.good = 10
-    t.username = 100
-    print t.username 
+    routes["rt_date_insert"]()
+    routes["rt_date_update"]()
+# test("self", {"username": "username", "password": "passwsord"}
+# t = Test()
+# t.good = 10
+# t.username = 100
+# print t.username
