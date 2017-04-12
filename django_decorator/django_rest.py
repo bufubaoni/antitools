@@ -86,7 +86,7 @@ def test(self, request, para, result, info):
     print para.username
 
 
-class Test(object):git
+class Test(object):
     pass
 
 
