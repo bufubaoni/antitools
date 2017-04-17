@@ -4,6 +4,8 @@
 from collections import namedtuple
 import re
 import pdb
+
+
 def restful(para, result):
     def wrapping(task):
         def decorator(*a, **k):
@@ -17,7 +19,7 @@ def restful(para, result):
 
             irregular = []
             for key, value in request.items():
-                if not re.match(para.get(key),request.get(key)):
+                if not re.match(para.get(key), request.get(key)):
                     irregular.append(key)
             print irregular
 
@@ -70,12 +72,18 @@ class RField(object):
 class JsonDict(dict):
     def __getattr__(self, attr):
         try:
+            if isinstance(self[attr], (dict,)):
+                return JsonDict(self[attr])
             return self[attr]
         except KeyError:
             raise AttributeError(r"'JsonDict' objectg has no attribute '%s'" % attr)
 
     def __setattr__(self, attr, value):
-        self[attr] = value
+        if isinstance(self[attr], (dict,)):
+            # pdb.set_trace()
+            self[attr] = JsonDict(value)
+        else:
+            self[attr] = value
 
 
 @restful({"username": "[a-z].",
@@ -123,8 +131,13 @@ def test2():
 if __name__ == "__main__":
     # routes["rt_date_insert"]()
     # routes["rt_date_update"]()
-    test("self", {"username": "username1", "password": "passwsord"})
-# t = Test()
-# t.good = 10
-# t.username = 100
-# print t.username
+    # test("self", {"username": "username1", "password": "passwsord"})
+    # t = Test()
+    # t.good = 10
+    # t.username = 100
+    # print t.username
+    test_jd = JsonDict({"a": {"b": {"c": {"d":321321321}}}})
+    # print test_jd.a["b"]
+    # test_jd.a["b"]["c"] = "asdfadsf"
+    # test_jd.a.b = "ddddd"
+    print test_jd.a.b.c.d
