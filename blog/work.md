@@ -24,4 +24,7 @@ django 内部的路由，
 其中客户端模式更像是api调用。密码模式更像是代理。
 使用soap但是又不完全使用。
 不过将 django 中集成如 pysimplesoap 也还不错。再做一下 dispatch 基本上就满足要求了。
+想将pysimplesoap 这个框架集成方式开源出来。
+而且将刨析oauth这个方式写一下。 
+
 
