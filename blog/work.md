@@ -26,5 +26,5 @@ django 内部的路由，
 不过将 django 中集成如 pysimplesoap 也还不错。再做一下 dispatch 基本上就满足要求了。
 想将pysimplesoap 这个框架集成方式开源出来。
 而且将刨析oauth这个方式写一下。 
-
+很多收旧应该使用订阅模式解耦然而并没有
 
