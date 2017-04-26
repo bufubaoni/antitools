@@ -6,14 +6,18 @@ def task_log(task):
     def decorator(*a, **k):
         print(1)
         return task(*a, **k)
+
     return decorator
+
 
 def task_log_para(para):
     def wrapping(task):
-        def decorator(*a,**k):
+        def decorator(*a, **k):
             print(para)
-            return task(*a,**k)
+            return task(*a, **k)
+
         return decorator
+
     return wrapping
 
 
@@ -24,5 +28,18 @@ def test(a):
     return a
 
 
+class A(object):
+    @task_log
+    def test(self):
+        print "1"
+
+
+class B(A):
+    def test(self):
+        print 2
+
+
 if __name__ == '__main__':
-    test("asdffff")
+    # test("asdffff")
+    a = B()
+    a.test()
