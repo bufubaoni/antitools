@@ -4,11 +4,17 @@
 from bottle import route,run,Bottle
 from run import run
 
-app = Bottle()
+# app = Bottle()
+#
+#
+# @app.route("/hello")
+# def index():
+#     return dict(name="hello alex")
+#
+# run(app, host="127.0.0.1", port=8000)
+class Test(list):
+    def __call__(self, *args, **kwargs):
+        return self[-1]
 
-
-@app.route("/hello")
-def index():
-    return dict(name="hello alex")
-
-run(app, host="127.0.0.1", port=8000)
+if __name__ == "__main__":
+    print Test()

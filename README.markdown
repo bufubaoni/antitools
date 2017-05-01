@@ -27,7 +27,7 @@ set
 	port=0.0.0.0:9001  ; url for mange
 	username=user      ; base auth
 	password=pass      ;
-opt you shuold copy then
+opt you should copy then
 modify username  and password for pass auth
 script 
 
@@ -40,7 +40,7 @@ task action opt
 
 3. struct_template
 -------------------------------------------------------
-if you have 2 list A and B
+if you have 2 lists A and B
 and there are the same number of elements
 You will get the same as the structure of B and A
 ex.
@@ -60,8 +60,8 @@ ex.
     1-pos:v. def:交；递；给                                                                                              
     2-pos:Web def:汉德；人手；手形
 
-when you input your words your will get translate, also you can input sentence.
-in windows cmd charset will only display half,shuold minimize and then restore the windows.
+when you input your words your will get the translation, also you can input sentences.
+in windows cmd charset will only display half, should minimize and then restore the windows.
 
 5.jfinal model generate
 -------------------------------------------------------
@@ -80,7 +80,7 @@ then you will get the
     tablenameModel.java
     tablename.java
 
-copy these to your project! Ation,the package will not correct ,becouse my project diff from yours.
+copy these to your project! Ation,the package will not correct ,because my project is different from yours.
 
 6. server test
 ---------------------------------------------------------
@@ -92,7 +92,7 @@ just the server down time.
 
 7. proxy list
 ---------------------------------------------------------
-long time ago write some spider for proxy,it have a default url,you should edit it if need.
+long time ago write some spider for proxy,it have a default url,you should edit it if you need to.
 this state aways gone.
 
 8. Decorator learn
@@ -114,17 +114,39 @@ or you can modify the folder by yourself .
 
 11. mysql_colunms
 ---------------------------------------------------------
-export mysql custumer's table to excel with verson .
+export mysql customer's table to excel with version .
 need
 
     pydal
     xlsxwriter
 
-it just to excel for simple
+it just to excel for simple, you should type your own config in `init.conf`.
+
+```conf
+    [mysql]
+    url:mysql://%(username)s:%(password)s@%(host)s/information_schema
+    username=root
+    password=password
+    host=xxx.xxx.xxx.xxx
+
+    [versonfile]
+    filename:%(name)s.json
+    name=verson
+
+    [excelfile]
+    filename:%(name)s.xlsx
+    name=test
+
+    [db2excel]
+    databasename:realtime_db
+    noneedtables:[]
+```
+
+then run `db2excel.py` for get excel file by yourself.
 
 12. learnpython
 ----------------------------------------------------------
-some base informtion for pro in work
+some base information for pro in work
     
     logging.conf in it to use SocketHandler and HttpHandler
     twisted is a logging server for this just easy for use
@@ -137,3 +159,13 @@ spider crawing huaban baord
 once get img src will message the celery .
 the celery queue will save the img
 
+14. jsondict
+--------------------------------------------------------
+simple dict to object in python
+```python
+import JsonDict
+
+a = JsonDict({"a":"b"})
+
+print a.a
+```

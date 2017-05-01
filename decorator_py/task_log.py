@@ -3,29 +3,43 @@
 # Created by Alex on 2016/9/18
 
 def task_log(task):
-    print(task)
     def decorator(*a, **k):
-        print(a)
-        print(k)
+        print(1)
         return task(*a, **k)
+
     return decorator
 
+
 def task_log_para(para):
-    print(para)
     def wrapping(task):
-        def decorator(*a,**k):
-            print(a)
-            print(k)
-            return task(*a,**k)
+        def decorator(*a, **k):
+            print(para)
+            return task(*a, **k)
+
         return decorator
+
     return wrapping
 
+
 @task_log
-@task_log_para("para")
+@task_log_para("para 1")
 def test(a):
-    print(a)
+    raise Exception
     return a
 
 
+class A(object):
+    @task_log
+    def test(self):
+        print "1"
+
+
+class B(A):
+    def test(self):
+        print 2
+
+
 if __name__ == '__main__':
-    print(test("asdffff"))
+    # test("asdffff")
+    a = B()
+    a.test()
