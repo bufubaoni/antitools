@@ -29,3 +29,7 @@ django 内部的路由，
 很多收旧应该使用订阅模式解耦然而并没有
 过分的依赖cbv会有意想不到的 bug，当然写起来很爽，其实也不算是bug吧，只不过需要每次需要初始化一下公共变量
 在看pysimplesoap 的源码
+
+## websockets
+使用uwsgi+django 启动的websocket长链接就会阻塞线程，如果不使用异步就会导致进程阻塞
+最终使用了 eventlet 启动wsgi 应用，在此作笔记
