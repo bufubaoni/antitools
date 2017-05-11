@@ -34,3 +34,4 @@ django 内部的路由，
 使用uwsgi+django 启动的websocket长链接就会阻塞线程，如果不使用异步就会导致进程阻塞
 最终使用了 eventlet 启动wsgi 应用，在此作笔记
 使用 uwsgi 启动eventlet进程后，并发一直撑到750 进程挂掉了，然后nginx 不再转发websocket 内容，即websocket不再请求页面，导致效率极低
+真的 eventlet 后撑到1300 的客户端，还没找到什么好方法
