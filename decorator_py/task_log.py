@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Alex on 2016/9/18
+import time
+
 
 def task_log(task):
     def decorator(*a, **k):
-        print(1)
-        return task(*a, **k)
+        time.time()
+        res = task(*a, **k)
+        time.time()
+        return res
 
     return decorator
 
