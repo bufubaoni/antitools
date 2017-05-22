@@ -9,11 +9,16 @@
 # from multiprocessing import Process,Pool
 import time
 #
-def loop():
-    while True:
-        print "this is event loop"
-        time.sleep(5)
+from threading import Thread
 
+# def loop():
+while True:
+    print "this is event loop"
+    time.sleep(5)
+#
+# t = Thread(target=loop)
+# t.start()
+print "haha"
 #
 # proc = Process(target=loop,args=())
 # proc.start()
@@ -42,7 +47,7 @@ def loop():
 #     p.join()
 #     print "ok"
 
-from threading import Thread
-t = Thread(target=loop)
-t.start()
-print "haha "
+# from threading import Thread
+# t = Thread(target=loop)
+# t.start()
+# print "haha "
