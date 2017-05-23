@@ -3,7 +3,7 @@
 # Created by Alex on 2016/12/16
 
 from blinker import signal
-
+import other
 
 test_message = signal("test")
 
