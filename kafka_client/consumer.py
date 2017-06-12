@@ -6,19 +6,7 @@ import sys
 from pykafka import KafkaClient
 from pykafka.exceptions import SocketDisconnectedError
 import logging
-import pdb
 import getopt
-from datetime import datetime
-
-# topic
-# topic_fault
-# topic_water
-# topic_other_warnning
-#
-# topic_alarm
-
-# request_addr
-
 
 sub_addr, topic, request_addr, consumer_id = "", "", "",""
 
