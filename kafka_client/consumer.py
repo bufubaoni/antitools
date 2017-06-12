@@ -63,8 +63,8 @@ def loops():
     logger.info(topic)
     logger.info(request_addr)
     client_msg = KafkaClient(hosts=sub_addr)
-    topic_fault = client_msg.topics[topic]
-    consumer = topic_fault.get_simple_consumer(consumer_group=group_id, auto_commit_enable=True,
+    topic_id = client_msg.topics[topic]
+    consumer = topic_id.get_simple_consumer(consumer_group=group_id, auto_commit_enable=True,
                                                auto_commit_interval_ms=1, consumer_id=consumer_id)
     logger.info("==========={topic}_consumer_run=================".format(topic=topic))
     while True:
@@ -75,7 +75,7 @@ def loops():
                     _send(request_addr, message.value)
 
         except SocketDisconnectedError as e:
-            consumer = topic_fault.get_simple_consumer(consumer_group=group_id, auto_commit_enable=True,
+            consumer = topic_id.get_simple_consumer(consumer_group=group_id, auto_commit_enable=True,
                                                        auto_commit_interval_ms=1, consumer_id=consumer_id)
             logger.error("{topic}_connect_again.....".format(topic=topic))
 
