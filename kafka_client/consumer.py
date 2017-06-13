@@ -8,7 +8,7 @@ from pykafka.exceptions import SocketDisconnectedError
 import logging
 import getopt
 
-sub_addr, topic, request_addr, consumer_id = "", "", "",""
+sub_addr, topic, request_addr, consumer_id = "", "", "", ""
 
 # logger
 FORMATER = '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s'
@@ -53,7 +53,7 @@ def loops():
     client_msg = KafkaClient(hosts=sub_addr)
     topic_id = client_msg.topics[topic]
     consumer = topic_id.get_simple_consumer(consumer_group=group_id, auto_commit_enable=True,
-                                               auto_commit_interval_ms=1, consumer_id=consumer_id)
+                                            auto_commit_interval_ms=1, consumer_id=consumer_id)
     logger.info("==========={topic}_consumer_run=================".format(topic=topic))
     while True:
         try:
@@ -64,7 +64,7 @@ def loops():
 
         except SocketDisconnectedError as e:
             consumer = topic_id.get_simple_consumer(consumer_group=group_id, auto_commit_enable=True,
-                                                       auto_commit_interval_ms=1, consumer_id=consumer_id)
+                                                    auto_commit_interval_ms=1, consumer_id=consumer_id)
             logger.error("{topic}_connect_again.....".format(topic=topic))
 
         logger.debug("{topic}_loop_run".format(topic=topic))
