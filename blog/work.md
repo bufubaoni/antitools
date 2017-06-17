@@ -79,3 +79,10 @@ websocket 到现在应该算是一段落了，如果还有问题的话，只好�
 
 ## mysql
 很多情况下 因为sql导致语句执行慢，拖慢整个接口速度
+
+## django
+
+针对多表回滚，django也有
+```python
+from django.db import transaction
+```
