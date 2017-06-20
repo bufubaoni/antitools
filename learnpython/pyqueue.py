@@ -32,5 +32,5 @@ import time
 from test_queue import queue
 
 queue.put("wokao")
-queue.join()
+# queue.join()
 # queue.get()
