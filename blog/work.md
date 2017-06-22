@@ -93,3 +93,6 @@ from django.db import transaction
 ## gevent
 
 询问朋友之后，说是不能 位置loop 只能保证 其不阻塞
+
+## 周报
+我 觉得我还是需要一个 周报自动生成的 东西，虽然有了 trello 和 tower ，但是 生成的 太烂了。
