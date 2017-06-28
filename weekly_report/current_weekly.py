@@ -14,6 +14,18 @@ def begin_end_week_day(current_day, delay=0):
     return begin, end
 
 
+class WeeklyReportTime(object):
+    def __init__(self, delay=0, formate="%m.%d"):
+        self._format = formate
+        self._day = datetime.now()
+        self.current_time = begin_end_week_day(self._day, delay)
+
+    def __str__(self):
+        return "{0}~{1}".format(self.current_time[0].strftime(self._format),
+                                self.current_time[1].strftime(self._format))
+
+
 if __name__ == '__main__':
     # print calendar.weekday(current_day.year, current_day.month, current_day.day)
     print begin_end_week_day(current_day)
+    print WeeklyReportTime(0)
