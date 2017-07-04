@@ -86,7 +86,7 @@ websocket 到现在应该算是一段落了，如果还有问题的话，只好�
 ```python
 from django.db import transaction
 ```
-
+django 使用session进行认证，如果同时接口使用drf之后，使用login_required 方法，就会报错，仅仅使用request.user.id 可以判断是否有用户登陆。
 ## 代码风格
  现在，代码的风格是一个很玄妙的东西，在函数入口我认为 将局部变量声明比较好，虽然python是一种很灵活的语言，可以容许你可以在使用的时候任意声明，但是也造成了一定的困扰。
 
