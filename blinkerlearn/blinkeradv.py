@@ -10,6 +10,7 @@ test_message = signal("test")
 
 @test_message.connect
 def test_a(sender):
+    1/0
     print("this is test a by sender: {sender}".format(sender=sender))
 
 @test_message.connect

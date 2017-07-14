@@ -8,4 +8,5 @@ test_message = signal("test")
 
 @test_message.connect
 def test(sender):
+
     print ("other module {sender}".format(sender=sender))
