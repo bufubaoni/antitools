@@ -131,3 +131,10 @@ end
 当有请求api时会在
 用户根目录下创建 `test_access.log`文件并写入*hello world!!!!*
 然后插件即可正常使用
+
+根据官方文档，plugin存放位置应该可以用户自定义，但是会根据加载习惯来添加一些内容
+如
+    我定义了
+    lua_package_path = /usr/local/custom/?.lua
+    那么kong会搜索如此的目录
+    `/usr/local/custom/kong/plugins/`
