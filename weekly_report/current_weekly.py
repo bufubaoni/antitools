@@ -28,4 +28,4 @@ class WeeklyReportTime(object):
 if __name__ == '__main__':
     # print calendar.weekday(current_day.year, current_day.month, current_day.day)
     print begin_end_week_day(current_day)
-    print WeeklyReportTime(1)
+    print WeeklyReportTime(0)
