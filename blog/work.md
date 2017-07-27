@@ -115,3 +115,21 @@ django 使用session进行认证，如果同时接口使用drf之后，使用log
 
 ## 杂谈
 学习是一个自然而然的过程，如果一个人现有的知识到达了一定程度就会自发的进行学习，反之亦然，如果有人单纯的追求形式上的成熟必然不会有什么理想的结果。
+
+## redis
+### 集合操作
+- SADD---------向集合中添加元素，`sadd key value`
+- SCARD--------集合元素个数，`scard key`
+- SDIFF--------第一个集合与之后集合并集的差集，
+- SDIFFSTORE
+- SINTER
+- SINTERSTORE
+- SISMEMBER----元素是否在集合中,`sismember key value`
+- SMEMBERS
+- SMOVE
+- SPOP
+- SRANDMEMBER
+- SREM
+- SSCAN
+- SUNION
+- SUNIONSTORE
