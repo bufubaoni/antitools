@@ -133,3 +133,6 @@ django 使用session进行认证，如果同时接口使用drf之后，使用log
 - SSCAN
 - SUNION
 - SUNIONSTORE
+
+## pydal
+可以使用_select 用于生成sql 而不进行数据库查询，对此可以进行其他数据库连接，或者 放入队列中，依次入库
