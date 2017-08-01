@@ -129,7 +129,7 @@ django 使用session进行认证，如果同时接口使用drf之后，使用log
 - SMOVE--------移动出指定元素 `smove key dst value` 将 key中的 value 移动到 dst 中
 - SPOP
 - SRANDMEMBER
-- SREM
+- SREM---------移除指定元素 `srem key value`
 - SSCAN
 - SUNION
 - SUNIONSTORE
