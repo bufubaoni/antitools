@@ -13,4 +13,6 @@ r.sadd("a","asdf")
 # print r.smembers("info_fire_authorities")
 print r.sismember("a","b")
 r.delete("info_manometer")
-print r.smembers("info_manometer")
+
+print r.smembers("info_dtu")
+r.smove("info_dtu",set(["4229"]),"4229")
