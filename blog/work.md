@@ -126,7 +126,7 @@ django 使用session进行认证，如果同时接口使用drf之后，使用log
 - SINTERSTORE
 - SISMEMBER----元素是否在集合中,`sismember key value`
 - SMEMBERS
-- SMOVE
+- SMOVE--------删出指定元素 `smove key dst value`
 - SPOP
 - SRANDMEMBER
 - SREM
