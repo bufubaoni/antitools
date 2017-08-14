@@ -140,4 +140,4 @@ django 使用session进行认证，如果同时接口使用drf之后，使用log
 是不是可以 仅将插入，删除 作为冷数据 保存在内存中，等数据冷之后 落地到数据库，然后将更新操作放到内存中，等需要落地的时候在依次入库，当然由于数据只有一个，可以将redis 的自增作为全局的id
 
 ## logging
-python提供了方便的 logging模块，尤其是  root logger 使得整个项目使用起来非常方便。
+python提供了方便的 logging模块，尤其是  root logger 使得整个项目使用起来非常方便。程序需要一个 main 入口，然后会依次 调用这个logging
