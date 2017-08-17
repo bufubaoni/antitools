@@ -113,7 +113,7 @@ class CompanyAlarmView(DemoView):
     LOGIC_METHOD = "some_method"
 ```
 
-原本希望通过 如下调用
+原本希望通过 如下调用,但是使用这种方法会想 some_method 中传入self 参数
 ```python
 from rest_framework.views import APIView
 from steps import steps
@@ -121,7 +121,7 @@ class DemoView(ApiView):
     LOGIC_METHOD = None
 
     def get(self, request):
-        method = getattr(steps, self.LOGIC_METHOD)
+        method = self.LOGIC_METHOD
         return method()
 
 
