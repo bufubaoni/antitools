@@ -78,11 +78,12 @@ websocket 到现在应该算是一段落了，如果还有问题的话，只好�
 有一个接口响应慢，拖慢了整个进程，然后导致一直报 broken pipe error 32 这样的 错误。
 
 ## mysql
-很多情况下 因为sql导致语句执行慢，拖慢整个接口速度
+很多情况下 因为sql导致语句执行慢，拖慢整个接口速度，大部分问题可以通过索引的修改
 
 ## django
 
-针对多表回滚，django也有
+针对多表回滚，django也有，
+
 ```python
 from django.db import transaction
 ```
@@ -93,6 +94,49 @@ django 使用session进行认证，如果同时接口使用drf之后，使用log
  现在，代码的风格是一个很玄妙的东西，在函数入口我认为 将局部变量声明比较好，虽然python是一种很灵活的语言，可以容许你可以在使用的时候任意声明，但是也造成了一定的困扰。
 最终使用了django的form 做了封装，当做入参的检查的工具,
 重写的 restframe 的dispatch 顺便看了他的 源码，感觉他的并不是很优美，很多东西 并不是 一次加载的。很多 都找来找去。
+
+在使用django  cbv 的时候，如果单单将一个方法赋予变量，python 会默认将self 作为参数传入函数
+目前是用 反射解决，期待更好的解决
+
+```python
+from rest_framework.views import APIView
+import steps
+class DemoView(ApiView):
+    LOGIC_METHOD = None
+
+    def get(self, request):
+        method = getattr(steps, self.LOGIC_METHOD)
+        return method()
+
+
+class CompanyAlarmView(DemoView):
+    LOGIC_METHOD = "some_method"
+```
+
+原本希望通过 如下调用
+```python
+from rest_framework.views import APIView
+from steps import steps
+class DemoView(ApiView):
+    LOGIC_METHOD = None
+
+    def get(self, request):
+        method = getattr(steps, self.LOGIC_METHOD)
+        return method()
+
+
+class CompanyAlarmView(DemoView):
+    LOGIC_METHOD = some_method
+```
+
+`steps.py` 文件内容
+
+```python
+def some_method(agr=default):
+    return agr
+```
+
+
 ## gevent
 
 询问朋友之后，说是不能 位置loop 只能保证 其不阻塞
