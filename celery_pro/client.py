@@ -3,4 +3,4 @@
 # Created by ChenXin on 2017/8/18
 from celery_test import add
 
-print add.delay(12,13).get()
+print add.delay(12,15)
