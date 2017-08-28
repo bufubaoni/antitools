@@ -185,3 +185,16 @@ def some_method(agr=default):
 
 ## logging
 python提供了方便的 logging模块，尤其是  root logger 使得整个项目使用起来非常方便。程序需要一个 main 入口，然后会依次 调用这个logging
+
+## pymysql
+
+之前有个同事问我  为什么格式化的时候总是出错误，今天终于有时间来 处理这个问题，就看了看，发现 使用 pymysql.excute 的时候 向其中传参数 也就是 args 的时候 总是提示语法错误
+    cur.mogrify("INSERT INTO test (num, data) VALUES (%s, %s)", (42, 'bar'))
+    "INSERT INTO test (num, data) VALUES (42, E'bar')"
+会被解释成下边一种，这是正常使用，但是当使用格式化表名的时候
+    cur.mogrify("INSERT INTO %s (num, data) VALUES (%s, %s)", ('test', 42, 'bar'))
+    "INSERT INTO 'test' (num, data) VALUES ('test',42, E'bar')"
+为了防止注入 会将表名 解释成 带有双引号的 ，这个是 sql 的本身占位符的问题，
+解决此问题的 途径就是
+    cur.mogrify("INSERT INTO {tablename} (num, data) VALUES (%s, %s)".format(tablename='test'), (42, 'bar'))
+即可解决问题。
