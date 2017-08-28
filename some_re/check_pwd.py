@@ -10,4 +10,4 @@ def check_passwd(pwd):
 
 
 if __name__ == '__main__':
-    print check_passwd("123中123333")
+    print check_passwd("123123333")
