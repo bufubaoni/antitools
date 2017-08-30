@@ -11,3 +11,4 @@ def add(x,y):
 #
 if __name__ == '__main__':
     app.start()
+    print app.__dict__
