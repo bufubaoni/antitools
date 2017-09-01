@@ -16,10 +16,11 @@ schema = {"atperson": [], "attachmentUri": [], "templateid": "1576b88d2bba77b4b8
 header = {
     "Host": "landray.dingtalkapps.com",
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0",
+    "Cookie": ""
 }
 
 
-def pub_report(finished="", realtime="", needblame="", userid="defaut value"):
+def pub_report(finished="", realtime="", needblame="", userid=""):
     schema["detail"][0]["value"] = finished
     schema["detail"][1]["value"] = realtime
     schema["detail"][2]["value"] = needblame
