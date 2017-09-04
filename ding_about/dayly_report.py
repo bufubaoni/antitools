@@ -29,7 +29,7 @@ header = {
 }
 
 
-def pub_report(finished="", realtime="", needblame="", userid="01512522161218664"):
+def pub_report(finished="", realtime="", needblame="", userid=""):
     schema["detail"][0]["value"] = finished
     schema["detail"][1]["value"] = realtime
     schema["detail"][2]["value"] = needblame
