@@ -178,6 +178,10 @@ def some_method(agr=default):
 - SUNION
 - SUNIONSTORE
 
+### hash操作
+- HSET----------向hash中添加元素
+- HGET----------从hash中取出元素
+- HEXISTS-------has中是否存在元素
 ## pydal
 可以使用_select 用于生成sql 而不进行数据库查询，对此可以进行其他数据库连接，或者 放入队列中，依次入库
 

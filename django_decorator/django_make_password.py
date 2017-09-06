@@ -8,5 +8,5 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_decorator.settings")
 from django.contrib.auth.hashers import make_password
 
 if __name__ == '__main__':
-    pass
+    print os.environ
     print make_password("qttc", None, 'pbkdf2_sha256')
