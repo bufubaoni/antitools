@@ -19,3 +19,5 @@ print r.smembers("info_dtu")
 # r.srem("info_manometer", "99999999")
 print r.sismember("info_dtu",14785261)
 r.srem("info_dtu", "14785261")
+
+print r.keys()

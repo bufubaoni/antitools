@@ -202,3 +202,9 @@ python提供了方便的 logging模块，尤其是  root logger 使得整个项�
 解决此问题的 途径就是
     cur.mogrify("INSERT INTO {tablename} (num, data) VALUES (%s, %s)".format(tablename='test'), (42, 'bar'))
 即可解决问题。
+
+### flask 相关
+
+初步使用flask 和 pydal 对之前的数据库做了一下测试，感觉还可以，想对 flask 进行初步的改造一下，首先就希望可以支持 url 这样的项目管理，毕竟装饰器做的路由，虽然好看 ，但是维护起来，还是有一点困难的
+
+使用了 legacy table 这样的工具，当然自己也为其写了一个 filter，现在 对于 数据库操作，更接近于 原生的 sql 而不是如 django一样 orm 的操作。
