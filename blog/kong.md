@@ -138,3 +138,5 @@ end
     lua_package_path = /usr/local/custom/?.lua
     那么kong会搜索如此的目录
     `/usr/local/custom/kong/plugins/`
+
+高级定制功能，例如字段选择，mc之类的架构，需要再kong层做缓存
