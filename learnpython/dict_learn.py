@@ -157,5 +157,5 @@ class Dictionary():
         print "Data: {}".format(self.data)
 if __name__ == '__main__':
     c = Dictionary(a="12333")
-
+    # 这个用dic实现dic 怎么看都没什么用。。。。。
     print c
