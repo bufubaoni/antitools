@@ -4,7 +4,7 @@
 from requests import Session
 import re
 
-base_path = "C:\\Users\\Public\\Pictures\\Sample Pictures\\"
+base_path = "C:/Users/Public/Pictures/Sample Pictures/"
 
 img = "g_img=\{.+\"(.+\.jpg)\""
 
