@@ -41,10 +41,12 @@ def save_img(url):
 
 def jpg2bmp(in_path, out_path):
     from PIL import Image
+    import os
     bmp = Image.open(in_path)
     r, g, b = bmp.split()
     img = Image.merge("RGB", (r, g, b))
     img.save(out_path)
+    os.remove(in_path)
     return out_path
 
 
