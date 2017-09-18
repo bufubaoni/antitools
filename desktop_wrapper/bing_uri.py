@@ -3,7 +3,8 @@
 # Created by ChenXin on 2017/9/18
 from requests import Session
 import re
-import pdb
+
+base_path = "C:\\Users\\Public\\Pictures\\Sample Pictures\\"
 
 img = "g_img=\{.+\"(.+\.jpg)\""
 
@@ -21,8 +22,38 @@ def get_img(string):
     if rs:
         return rs[0]
 
+
 def get_uri(uri):
     return uri + get_img(get_text(uri))
+
+
+def save_img(url):
+    file_name = url.split("/")[-1]
+    path = base_path + file_name
+    with open(path, "wb") as fd:
+        for chunk in session.get(url, stream=True):
+            fd.write(chunk)
+
+    bmp_path = base_path + file_name.split(".")[0] + ".bmp"
+    path = jpg2bmp(path, bmp_path)
+    return path
+
+
+def jpg2bmp(in_path, out_path):
+    from PIL import Image
+    bmp = Image.open(in_path)
+    r, g, b = bmp.split()
+    img = Image.merge("RGB", (r, g, b))
+    img.save(out_path)
+    return out_path
+
+
+def save_wrapper(uri):
+    uri = get_uri(uri)
+
+    path = save_img(uri)
+
+    return path
 
 
 if __name__ == '__main__':
