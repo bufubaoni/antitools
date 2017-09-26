@@ -220,3 +220,9 @@ python提供了方便的 logging模块，尤其是  root logger 使得整个项�
 
 ### csrf 问题
 csrf 是个奇怪的问题，当cookie中含有sessionid（网站认证id）的时候会触发csrf检查。
+
+### nginx
+
+一直认为nginx 不能用url 作为分割，后来仔细阅读文档发现，nginx 支持以uri开头作为路由，而且可以对项目拆分有很乐观的，并且根据不同的static可以路由到不同的项目文件夹，也为项目上传提供了方便。
+
+并且如此 作为反向代理，也不会出现跨域问题。
