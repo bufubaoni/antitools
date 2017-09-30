@@ -182,6 +182,34 @@ def some_method(agr=default):
 - HSET----------向hash中添加元素
 - HGET----------从hash中取出元素
 - HEXISTS-------has中是否存在元素
+
+
+使用cache将一定model中的一定数据缓存到redis中，可以通过简单的装饰器进行数据的缓存，主要针对的是model 的方法
+
+在对diango 的manager 进行一系列的魔改之后，为了实现view 业务中代码不改变而直接获得缓存数据
+```python
+class CacheManager(models.Manager):
+    def get_queryset(self):
+        query_set = super(FBDicManager, self).get_queryset()
+        self.query = query_set.query
+        self.model = query_set.model
+        self.filter = query_set.filter
+        query_set.get = self.get
+        return query_set
+
+    def get(self, *args, **kwargs):
+        convert = {"pk": "id",
+                   "id": "id"}
+        j_query = {int(item.get("id")): item for item in self.model.query_all()}
+        j_model = j_query.get(int(kwargs.values()[0]))
+        if j_model:
+            return self.model(**j_model)
+        else:
+            return None
+```
+主要针对的是单一查询，也就是使用pk或者 id 查询，当然 convert 并没有用，此时如果返回dic表中数据，则会从缓存中直接拿取。
+
+
 ## pydal
 可以使用_select 用于生成sql 而不进行数据库查询，对此可以进行其他数据库连接，或者 放入队列中，依次入库
 
