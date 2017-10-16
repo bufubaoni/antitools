@@ -268,3 +268,16 @@ django 的生成limt 的效率非常低，如果数据量不大建议全部查�
 仍然优化中，遇到django分页问题，会先 count 再做分页，如果数据量非常大的话会导致此语句非常慢，目前没找到优化方法
 
 如果是新系统的话，建议一开始做好异步准备，做好数据分析，提高可复用性。
+
+### django session
+
+遇到平移修改接口的时候，会遇到直接想写一个 class 直接 引用 view 的情况，如果遇到此种情况，可以直接 request.set_test_cookie()
+
+然后将直接调用此类 即可
+```python
+    ma = SomeViews().as_view()
+
+    request.session.set_test_cookie()
+    # 正常使用即可，如果需要区别，那么 系统会自动分辨
+    return ma(request)
+```
