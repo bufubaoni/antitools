@@ -287,3 +287,13 @@ django 的生成limt 的效率非常低，如果数据量不大建议全部查�
 ### django数据库
 
 django对于每一请求会新建一个数据库连接，当连接 超过限度的时候，数据库会拒绝连接，连接关闭 自view 结束，当有些view 时间很长的时候，会导致一直不出view，在接口时间长的接口需要手动关闭数据库连接
+
+### celery
+
+调试的时候，需要
+
+from from celery.contrib import rdb
+
+rdb.set_trance()
+
+然后 需要启用 telnet 客户端，连接到调试上。如果是win 的话需要启用此客户端
