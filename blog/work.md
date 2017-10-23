@@ -297,3 +297,9 @@ from from celery.contrib import rdb
 rdb.set_trance()
 
 然后 需要启用 telnet 客户端，连接到调试上。如果是win 的话需要启用此客户端
+
+celery 有时无法使用 root 权限启动，需要手动 允许
+
+from celery import platforms
+
+platforms.C_FORCE_ROOT = True
