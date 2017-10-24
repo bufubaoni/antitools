@@ -8,11 +8,12 @@ class JsonDict(dict):
             return self[attr]
         except KeyError:
             raise AttributeError(r"'JsonDict' objectg has no attribute '%s'" % attr)
-        
+
     def __setattr__(self, attr, value):
         self[attr] = value
 
+
 if __name__ == "__main__":
-    j = JsonDict({"a":1,"b":2,"c":["q5"]})
+    j = JsonDict({"a": 1, "b": 2, "c": ["q5"]})
     j.c.append("qq")
     print j

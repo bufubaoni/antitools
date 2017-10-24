@@ -303,3 +303,6 @@ celery 有时无法使用 root 权限启动，需要手动 允许
 from celery import platforms
 
 platforms.C_FORCE_ROOT = True
+
+
+总是奇奇怪怪的接口，哎，淡定
