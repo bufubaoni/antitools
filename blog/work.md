@@ -305,6 +305,4 @@ from celery import platforms
 platforms.C_FORCE_ROOT = True
 
 
-总是奇奇怪怪的接口，哎，淡定
-
-经过两天的编写，接口开发终于结束，看来效率 极限也就是一天 10个左右吧。
+工作之余希望能找一个lua 的ide，希望有些事情能交给proxy层做，因为毕竟server层的运算或者代价还是挺大的。
