@@ -3,7 +3,7 @@
 # Created by ChenXin on 2017/7/20
 import redis
 
-r = redis.StrictRedis(host="192.168.85.135", port=6379, db=0)
+r = redis.StrictRedis(host="127.0.0.1", port=6379, db=0)
 
 # r.set("key", [])
 # r.expire("name", 10)
@@ -20,4 +20,7 @@ print r.smembers("info_fire_authorities")
 # print r.sismember("info_dtu",14785261)
 # r.srem("info_dtu", "14785261")
 # print r.spop("a")
-# print r.keys()
+print r.keys()
+# print r.delete("celery")
+# print r.delete("_kombu.binding.celeryev")
+# print r.delete("_kombu.binding.celery")
