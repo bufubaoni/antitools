@@ -27,13 +27,20 @@ import gevent
 import signal
 
 def run_forever():
-    print "run start"
-    gevent.sleep(10)
-    print "run stop"
+    while True:
+        print "run start"
+        gevent.sleep(1)
+        print "run stop"
 
+def something():
+    while True:
+        print "other process run"
+        gevent.sleep(1)
+    # print "other process run"
 if __name__ == '__main__':
     gevent.signal(signal.SIG_IGN, gevent.kill)
     thread = gevent.spawn(run_forever)
+    thread.spawn(something)
     thread.join()
 
 # if __name__ == '__main__':
