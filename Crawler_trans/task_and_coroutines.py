@@ -4,6 +4,9 @@
 from gevent import Greenlet
 import gevent
 
+task_list = list()
+
+
 class MyNoopGreenlet(Greenlet):
     def __init__(self, seconds):
         Greenlet.__init__(self)
@@ -17,7 +20,7 @@ class MyNoopGreenlet(Greenlet):
         return 'MyNoopGreenlet(%s)' % self.seconds
 
 
-from gevent.hub import Waiter,get_hub
+from gevent.hub import Waiter, get_hub
 
 result = Waiter()
 
@@ -26,23 +29,18 @@ timer = get_hub().loop.timer(1)
 import gevent
 import signal
 
+
 def run_forever():
+    print id(task_list)
     while True:
-        print "run start"
+        print "heart beat"
         gevent.sleep(1)
-        print "run stop"
+        if len(task_list):
+            task = task_list.pop()
+            if callable(task):
+                task()
 
-def something():
-    while True:
-        print "other process run"
-        gevent.sleep(1)
-    # print "other process run"
+
 if __name__ == '__main__':
-    gevent.signal(signal.SIG_IGN, gevent.kill)
     thread = gevent.spawn(run_forever)
-    thread.spawn(something)
     thread.join()
-
-# if __name__ == '__main__':
-#     timer.start(result.switch, "hello from waiter")
-#     print result.get()
