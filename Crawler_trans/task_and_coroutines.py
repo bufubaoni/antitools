@@ -15,7 +15,7 @@ def run_forever():
         if len(task_list):
             task = task_list.pop()
             if callable(task):
-                task()
+                gevent.spawn(task)
 
 
 def add_tasks(module, name):

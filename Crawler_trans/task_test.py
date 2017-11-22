@@ -8,6 +8,8 @@ from task_and_coroutines import share_task
 
 @share_task
 def test_task():
+    import time
+    time.sleep(5)
     print "task from other pro"
 
 #
