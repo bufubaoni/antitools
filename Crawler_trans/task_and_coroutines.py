@@ -1,37 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by ChenXin on 2017/11/20
-from gevent import Greenlet
+from gevent import monkey
+monkey.patch_all()
 import gevent
-
+from gevent import socket
 task_list = list()
 
 
-class MyNoopGreenlet(Greenlet):
-    def __init__(self, seconds):
-        Greenlet.__init__(self)
-        self.seconds = seconds
-
-    def _run(self):
-        print "run server"
-        gevent.sleep(self.seconds)
-
-    def __str__(self):
-        return 'MyNoopGreenlet(%s)' % self.seconds
-
-
-from gevent.hub import Waiter, get_hub
-
-result = Waiter()
-
-timer = get_hub().loop.timer(1)
-
-import gevent
-import signal
-
-
 def run_forever():
-    print id(task_list)
     while True:
         print "heart beat"
         gevent.sleep(1)
@@ -41,6 +18,43 @@ def run_forever():
                 task()
 
 
+def add_tasks(module, name):
+    _class = __import__(module)
+    method = getattr(_class, name)
+    task_list.append(method)
+
+
+from gevent.server import DatagramServer
+import json
+
+
+class EchoServer(DatagramServer):
+
+    def handle(self, data, address):
+        if data:
+            data = json.loads(data)
+            add_tasks(data["module"], data["method"])
+
+
+def share_task(fun):
+    def w(*a, **k):
+
+        if fun.func_globals["__name__"] == "__main__":
+            address = ('localhost', 9000)
+            message = {"module": fun.func_globals["__file__"].split("/")[-1].split(".")[0],
+                       "method": fun.__name__}
+            sock = socket.socket(type=socket.SOCK_DGRAM)
+            sock.connect(address)
+            sock.send(json.dumps(message))
+        return fun(*a, **k)
+    return w
+
+
+def wait_add_tasks():
+    pass
+
+
 if __name__ == '__main__':
     thread = gevent.spawn(run_forever)
+    EchoServer(':9000').serve_forever()
     thread.join()
