@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by ChenXin on 2017/11/24
 from datetime import timedelta, datetime
-
+# 将大的任务拆分成小的任务，可以多次执行一个任务来确认是否需执行正确
 
 def time_split(seconds=60):
     def wrap(fun):
@@ -29,10 +29,8 @@ def time_split(seconds=60):
 
 @time_split(seconds=60)
 def fun(start, end):
-    print start
-    print end
     return range(0, (end - start).seconds)
 
 
 if __name__ == '__main__':
-    print fun(datetime.now(), datetime.now() + timedelta(seconds=121))
+    print len(fun(datetime.now(), datetime.now() + timedelta(seconds=121)))
