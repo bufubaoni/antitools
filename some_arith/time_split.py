@@ -18,7 +18,6 @@ def time_split(seconds=60):
             result = list()
 
             for item in l_time_group:
-                print
                 result.extend(fun(*item))
             return result
 
