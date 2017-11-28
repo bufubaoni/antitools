@@ -252,7 +252,7 @@ python提供了方便的 logging模块，尤其是  root logger 使得整个项�
 csrf 是个奇怪的问题，当cookie中含有sessionid（网站认证id）的时候会触发csrf检查。
 
 一个机缘巧合的机会询问到，这个确实是一个坑，需要在 view 的最外层加上csrf_exempt 这个装饰器，由于我继承的是 drf的APIView在最层的 as_view()已经做了csrf_exempt 处理，当时他告诉我由于这个位置不够外层，所以需要再最外层加上这个方法，发现这个问题并不能解决，最终解决还是将`SessionAuthentication`里边的那个`enforce_csrf`pass掉了，
-当然最好的解决方法仍然是 写一个类的装饰器，直接重写掉这个方法，以后可以 方便的导入
+当然最好的解决方法仍然是 写一个类的装饰器，直接重写掉这个方法，以后可以 方便的导入,相同的问题应该只解决一遍。
 
 ### nginx
 
