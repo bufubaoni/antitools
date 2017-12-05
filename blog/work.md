@@ -356,3 +356,19 @@ str(a) 程序员使用这样的一个简单的str 将整型转换成str 这么�
 
 项目启动的时候会加载一些缓存数据，或者一些系统配置，那么这些配置写在哪里会比较合适呢，所有的 app 都是 第一次 请求之后才会依次加载，也就是说一些速度比较快的加载，可以放到 app中
 如果在项目启动时候加载一些数据，那么需要再init中写入这些文件，1。9之后 django 不支持在__init__ 中加载一些数据信息，但是官方给出了在 apps.py中的 config 可以设置ready()方法中加载部分信息。如此hook 就有一个统一的入口，当然 urs.py是第一个被加载的，在此之中加载配置信息，也没什么问题。
+
+## pycharm 中设置git为terminal
+
+将 git bash 设置为terminal以后 会出现 中文乱码的效果，只需要将编码改为utf-8即可
+在`/etc/bash.bashrc`
+
+export LANG=zh_CN.utf-8
+alias ls='ls --show-control-chars --color=auto'
+
+或者
+
+export LC_ALL=zh_CN.UTF-8
+
+即可以将中文正常显示
+
+
