@@ -221,7 +221,7 @@ class CacheManager(models.Manager):
 
 ## logging
 python提供了方便的 logging模块，尤其是  root logger 使得整个项目使用起来非常方便。程序需要一个 main 入口，然后会依次 调用这个logging
-
+django 有一个logging 的配置模块，但是每次使用runserver 的时候会看到 你的 request line， 仔细研究发现，这个并非django的提供的，而是wsgi 提供的，所以使用eventlet 和gevent 的时候会有不同的request line，起码会显示相应的 time，还是很方便的。
 ## pymysql
 
 之前有个同事问我  为什么格式化的时候总是出错误，今天终于有时间来 处理这个问题，就看了看，发现 使用 pymysql.excute 的时候 向其中传参数 也就是 args 的时候 总是提示语法错误
