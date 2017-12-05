@@ -4,7 +4,7 @@
 import re
 
 with open("fubang_9005.log", "r") as f:
-    for i, line_get in enumerate(f.readlines()):
+    for line_get in f.readlines():
         line_get = re.findall("127\.0\.0\.1 - - .+[GET,POST] .+", line_get)
         if line_get:
             time_len = line_get[0].split()[-1]
