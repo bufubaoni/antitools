@@ -37,8 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'subject_sytem',
+    'subject_system',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +120,41 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGGING_CONFIG = 'logging.config.dictConfig'
+# Application definition
+LOGDIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGDIR):
+    os.mkdir(LOGDIR)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'formatter': 'simple',
+            'class': 'logging.StreamHandler',
+        },
+        'filehandler': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'simple',
+            'filename': os.path.join(LOGDIR, "fubang_service.log")
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console', 'filehandler'],
+            'level': 'DEBUG',
+        },
+        'subject_system': {
+            'handlers': ['console', 'filehandler'],
+            'level': 'WARNING',
+        },
+    }
+}
