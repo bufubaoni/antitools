@@ -139,13 +139,7 @@ LOGGING = {
             'level': 'DEBUG',
             'formatter': 'simple',
             'class': 'logging.StreamHandler',
-        },
-        'filehandler': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'formatter': 'simple',
-            'filename': os.path.join(LOGDIR, "fubang_service.log")
-        },
+        }
     },
     'loggers': {
         'django.db.backends': {
@@ -153,7 +147,7 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'subject_system': {
-            'handlers': ['console', 'filehandler'],
+            'handlers': ['console'],
             'level': 'WARNING',
         },
     }
