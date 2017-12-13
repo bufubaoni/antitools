@@ -1,6 +1,6 @@
 from django.contrib import admin
-from subject_sytem.models import (Student, Subject,
-                                  SubjectTime, Teacher, RelationStudentSubject)
+from subject_system.models import (Student, Subject,
+                                   SubjectTime, Teacher, RelationStudentSubject)
 
 admin.site.register(Student)
 admin.site.register(Subject)
