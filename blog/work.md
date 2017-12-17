@@ -385,4 +385,50 @@ django 原本带有自身的paginator，本身还是很好用的，随着业务�
 
 ## restful 简述
 
-写了这么长时间的接口了，从来也没去考虑过restful的核心是什么，业务写多了，当然公司的很多东西也并不规范，所以也没有近一步的研究，更多的是在业务的技术领域。其核心围绕着resources 资源，对传统的表现层的连续流程的分割，对资源状态以及业务逻辑简单的划分。
+写了这么长时间的接口，从来也没去考虑过restful的核心是什么，当然公司的很多东西也并不规范，所以也没有近一步的研究，更多的是在业务的技术领域。
+
+其核心围绕着resources 资源，对传统的表现层的连续流程的分割，对资源状态以及业务逻辑简单的划分。
+
+## 针对接口流程
+
+参数合法性检测，参数正确性检测，业务逻辑，数据返回，也大概就是分为此三种，如果有其他流程也大致相同，根据公司业务不同，或许有更复杂的检测
+
+那么参数合法性检测就会在 validator中完成，完成后应当返回合适的参数，而数据的正确性检测根据逻辑同应当放到业务接口中，在django rest framework 中会将参数正确性检测和业务逻辑与数据返回 写到一个 序列化中，而在view 入口得到一个非常清爽的结果。
+
+现在以个人愚见，在view中应当 体现参数，以及参数合法性检测，以及应当将数据返回清晰的写在入口处，而业务逻辑应该在view 中，减少一次编辑器的跳转，或许业务不够复杂，应当与人的习惯相同下面就是一个例子
+
+```python
+class TestViews(SerializerDataMixin, TokenLessView):
+    ALLOWED_METHOD = ['post', ]
+    DATA_FIELD = ["test", "test1"]
+    SCHEMA = {
+        "test": {"type": "json", "required": True}
+    }
+
+    def post(self, request):
+        self.result.test = self.cleaned_data["test"][1]
+        self.result.test1 = "000000000"
+        print id(self.data)
+        print self.request.data["test2"]
+        print self.cleaned_data.test_data
+        return self.result
+
+    def get_test_data(self):
+        return "pass attr"
+
+```
+
+继承自SerializerDataMixin，TokenLessView
+
+而 TokenLessView 继承自 ValidatorsMixin 和 APIView
+
+
+此接口http方法为 `post`
+
+schema 表明接受参数为test,并且此参数接受的值的类型为json格式的字符串，并且不能为空，如果参数意义明确，其实并不需要更详细的解释。唯一不明确的是此地址，那么应当将uri写到注释中并且注明接口用途。
+
+返回参数为`test`与`test1`
+
+get_test_data()此为业务接口数据验证，可以做数据库查询或者范围验证，如果验证不通过，抛出异常即可，更上层的 view 可以捕捉异常并返回给客户端。
+
+那么 我们就可以得到一个正确处理过的test_data字段，并且可以在主业务中继续流程。以上仅仅是个人愚见。
