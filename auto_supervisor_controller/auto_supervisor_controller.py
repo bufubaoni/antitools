@@ -5,11 +5,10 @@ import requests
 from requests.auth import HTTPBasicAuth
 import sys
 
-url="http://192.168.1.109:9001/"
+url = "http://192.168.1.109:9001/"
 session = requests.Session()
-res = session.get((url+'?'
+res = session.get((url + '?'
                    'processname={task_name}&amp;'
                    'action={task_action}'.format(task_name=sys.argv[1],
                                                  task_action=sys.argv[2])),
-                   auth=HTTPBasicAuth('username', 'password'))
-
+                  auth=HTTPBasicAuth('username', 'password'))
