@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Created by ChenXin on 2017/5/11
 from gevent import monkey
 
-monkey.patch_all()
+monkey.patch_all()  # noqa
 from gevent.wsgi import WSGIServer
 
 import os
