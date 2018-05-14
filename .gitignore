@@ -81,3 +81,5 @@ clearn/*/*.cbp
 
 huaban/download/
 huaban/log/*.*
+
+.vscode*
