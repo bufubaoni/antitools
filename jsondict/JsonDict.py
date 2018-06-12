@@ -19,7 +19,13 @@ class JsonDictSimple(dict):
     set attr like obj
     """
     __setattr__ = dict.__setitem__
-    __getattr__ = dict.get
+
+    def __getattr__(self, name):
+        value = self.get(name)
+        if isinstance(value, dict):
+            return JsonDictSimple(value)
+        else:
+            return value
 
 
 if __name__ == "__main__":
@@ -27,5 +33,7 @@ if __name__ == "__main__":
     j.c.append("qq")
     d = JsonDictSimple()
     d.a = 666
+    d = JsonDictSimple({"a": 1, "b": {"c": "q5"}})
     print d.a
     print j, d
+    print d.b.c
