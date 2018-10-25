@@ -6,8 +6,8 @@ class MyError(Exception):
     pass
 
 
-@timeout_decorator.timeout(5, timeout_exception=MyError)
-def mytest():
+@timeout_decorator.timeout(5, timeout_exception=MyError, use_signals=False)
+def mytest(q):
     print "Start"
     for i in range(1, 10):
         time.sleep(1)
@@ -15,4 +15,4 @@ def mytest():
 
 
 if __name__ == '__main__':
-    mytest()
+    mytest(2)
