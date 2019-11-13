@@ -11,6 +11,7 @@ numb_signal = signal("numb")
 save_file_signal = signal("save")
 sesson = requests.Session()
 url = "http://maoyan.com/board/1"
+sesson.headers = {'Cookie': '''<you-cookie>'''}
 content = sesson.get(url)
 
 dds = pq(content.text)("dl.board-wrapper>dd")
@@ -32,15 +33,17 @@ def get_numb():
 
 def get_woff_url():
     woffs = pq(content.text)("style")
-    for line in woffs.text().split("\n"):
+    for line in woffs.text().split(","):
         if "woff" in line:
-            return line.split(")")[0].strip()[5:-1]
+            return 'http://' + line.split(")")[0].strip()[7:-1]
 
 
 def convert_number(s):
     url = get_woff_url()
+
     path = save_woff(url)
     _dict = get_dict_numb_from_woff(path)
+
     _lst_uincode = []
     for item in s.__repr__().split("\u"):
         _lst_uincode.append("uni" + item[:4].upper())
@@ -59,4 +62,7 @@ def save_woff(url):
 
 
 if __name__ == "__main__":
-    get_numb()
+    try:
+        get_numb()
+    except Exception as e:
+        print e
