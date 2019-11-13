@@ -38,7 +38,6 @@ class MainHandler(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
 
 
-
 if __name__ == "__main__":
     application = tornado.web.Application([
         (r"/websocket", MainHandler),
