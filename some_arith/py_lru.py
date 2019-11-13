@@ -6,16 +6,16 @@ class SimpleLru(dict):
 
     def get(self, key):
         if key in self.keys():
-            hot_numbers = self.get(key).get('hot_numbers')
+            hot_numbers = self[key].get('hot_numbers')
             hot_numbers += 1
-            value = self.get(key).get('value')
-            self.set(key, {'hot_numbers': hot_numbers, 'value': value})
+            value = self[key].get('value')
+            self[key] = {'hot_numbers': hot_numbers, 'value': value}
             return value
         else:
             raise AttributeError('not in this cache')
 
     def set(self, key, value):
-        l_sort_keys = [(k, v.get('hot_numbers'))for k, v in self.items()]
+        l_sort_keys = sorted([(k, v.get('hot_numbers'))for k, v in self.items()], lambda x, y: x[1] > y[1])
         if len(l_sort_keys) >= self.records_limit:
             _key, _ = l_sort_keys.pop(-1)
             self.pop(_key)
@@ -27,10 +27,12 @@ class SimpleLru(dict):
 if __name__ == "__main__":
     local_cache = SimpleLru(2)
 
-    local_cache.set('test', 2)
-    local_cache.set('test2', 2)
-    local_cache.set('test3', 2)
-    local_cache['test']
-    local_cache['test']
+    local_cache.set('test', 1)
+    local_cache.set('test2', 1)
+    local_cache.set('test3', 3)
+    local_cache.get('test')
+    local_cache.get('test')
     local_cache['test3']
-    local_cache.set('test4', 2)
+    local_cache.set('test4', 4)
+    print local_cache
+    print local_cache.get('test')
