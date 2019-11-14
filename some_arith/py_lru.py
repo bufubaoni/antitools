@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# 一个简单的lru 缓存 python 中有本地存储python-lru库，请使用标准库
+
+
 class SimpleLru(dict):
 
     def __init__(self, records_limit=100):

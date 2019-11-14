@@ -3,19 +3,19 @@
 
 
 def list_sort(list_source=[]):
-    
-    dic_count = {value:list_source.count(value) for value in list_source}
-    
+
+    dic_count = {value: list_source.count(value) for value in list_source}
+
     _resault = []
 
     for item in range(max(dic_count.values())):
         _resault.append(list())
-    
+
     for item in list_source:
         r_index = list_source.count(item) - 1
         if item not in _resault[r_index]:
             _resault[r_index].append(item)
-            
+
     _resault.append(list())
 
     _resault = reduce(lambda x, y: x + sorted(y, reverse=True), reversed(_resault))
@@ -23,6 +23,7 @@ def list_sort(list_source=[]):
 
 
 from collections import Counter
+
 
 def list_sort_b(list_source):
     dic_count = Counter(list_source)
@@ -32,5 +33,5 @@ def list_sort_b(list_source):
 
 
 if __name__ == "__main__":
-    print list_sort([1,1,2,2,5,3,6])
-    print list_sort_b([1,1,2,2,5,3,6])
+    print list_sort([1, 1, 2, 2, 5, 3, 6])
+    print list_sort_b([1, 1, 2, 2, 5, 3, 6])

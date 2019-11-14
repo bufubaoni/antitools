@@ -25,5 +25,5 @@ def stair2():
 if __name__ == "__main__":
     print stair(6)
     s = stair2()
-    for i in range(0,6):
+    for i in range(0, 6):
         print s.next()
