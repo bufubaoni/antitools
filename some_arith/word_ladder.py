@@ -38,7 +38,6 @@ def ladderLength(beginWord, endWord, wordList):
         wordList.remove(beginWord)
 
     path = build_tree(beginWord, endWord, wordList, [])
-    print path
     for item in path:
         if endWord in item:
             return len(item)
@@ -104,7 +103,7 @@ def visit(wordList, word):
 def build_tree(beginWord, endWord, wordList, path_set):
     if not path_set:
         path_set.append([beginWord])
-
+    nw_path = list()
     for pathed in path_set:
         current = pathed[-1]
 #         遍历
@@ -114,55 +113,45 @@ def build_tree(beginWord, endWord, wordList, path_set):
             return path_set
 #         存在
         recoard = list(pathed)
-        ln = len(recoard)
         for nxt in result:
             _pathed = list(recoard)
-#             print nxt, _pathed
             if nxt not in _pathed:
                 _pathed.append(nxt)
-                path_set.append(list(_pathed))
+                nw_path.append(list(_pathed))
             if nxt == endWord:
-                return path_set
-        print '--------------------------', ln
+                return nw_path
+    return build_tree(beginWord, endWord, wordList, nw_path)
 
-    # 减枝
-    _path_set = list(path_set)
-    final_path_set = []
-    for item in _path_set:
-        if len(item) == ln+1:
-            final_path_set.append(item)
-    return build_tree(beginWord, endWord, wordList, final_path_set)
+# other solution
+# class Solution(object):
+#     def ladderLength(self, beginWord, endWord, wordList):
+#         from collections import deque
+#         if endWord not in wordList:
+#             return 0
+#         wordList = set(wordList)  # 必备优化，不然超时
 
+#         res, forward, backward = 2, {beginWord}, {endWord}
+#         while forward:
+#             if len(forward) > len(backward):
+#                 forward, backward = backward, forward
 
-class Solution(object):
-    def ladderLength(self, beginWord, endWord, wordList):
-        from collections import deque
-        if endWord not in wordList:
-            return 0
-        wordList = set(wordList)  # 必备优化，不然超时
+#             next_level = set()
+#             for word in forward:
+#                 for i in range(len(word)):
+#                     for k in range(26):
+#                         tmp = word[:i] + chr(ord("a") + k) + word[i + 1:]
 
-        res, forward, backward = 2, {beginWord}, {endWord}
-        while forward:
-            if len(forward) > len(backward):
-                forward, backward = backward, forward
-
-            next_level = set()
-            for word in forward:
-                for i in range(len(word)):
-                    for k in range(26):
-                        tmp = word[:i] + chr(ord("a") + k) + word[i + 1:]
-
-                        if tmp in backward:  # 找到了
-                            return res
-                        if tmp in wordList:
-                            next_level.add(tmp)
-                            wordList.remove(tmp)
-            res += 1
-            forward = next_level
-        return 0
+#                         if tmp in backward:  # 找到了
+#                             return res
+#                         if tmp in wordList:
+#                             next_level.add(tmp)
+#                             wordList.remove(tmp)
+#             res += 1
+#             forward = next_level
+#         return 0
 
 
 if __name__ == "__main__":
-    sl = Solution()
-    print sl.ladderLength(endWord, beginWord,  wordList)
-    # print ladderLength(endWord, beginWord,  wordList)
+    # sl = Solution()
+    # print sl.ladderLength(endWord, beginWord,  wordList)
+    print ladderLength(endWord, beginWord,  wordList)
