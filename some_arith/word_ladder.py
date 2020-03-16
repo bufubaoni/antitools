@@ -122,6 +122,7 @@ def build_tree(beginWord, endWord, wordList, path_set):
                 return nw_path
     return build_tree(beginWord, endWord, wordList, nw_path)
 
+
 # other solution
 # class Solution(object):
 #     def ladderLength(self, beginWord, endWord, wordList):
