@@ -24,4 +24,4 @@ def fackaddfile(file_name, date):
 
 
 if __name__ == "__main__":
-    fackaddfile('git_commit/cmtgit.py', "2020-03-29 11:40:30")
+    fackaddfile('git_commit/cmtgit.py', "2020-03-28 11:40:30")
