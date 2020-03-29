@@ -7,19 +7,19 @@ def addfile(file_name):
     os.popen(cmd)
 
 
-def commit():
-    cmd = "git commit"
+def commit(file_name):
+    cmd = "git commit -m 'add {}'".format(os.path.basename(file_name))
     os.popen(cmd)
 
 
 def last_cmt_amend_date(date):
-    cmd = 'git commit --amend --date="{}"'.format(date)
+    cmd = 'git commit --amend --no-edit --date="{}"'.format(date)
     os.popen(cmd)
 
 
 def fackaddfile(file_name, date):
     addfile(file_name)
-    commit()
+    commit(file_name)
     last_cmt_amend_date(date)
 
 
